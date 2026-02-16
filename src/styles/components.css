@@ -1,0 +1,22 @@
+.btn {
+  background: var(--color-primary);
+  color: white;
+  border: 1px solid transparent;
+  border-radius: calc(var(--radius) - 2px);
+  padding: 8px 12px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn.active { background: var(--color-secondary); }
+.btn.danger { background: #ef4444; }
+.project-list { display: grid; gap: 8px; margin-bottom: var(--spacing); }
+.project-btn { text-align: left; }
+.tools-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; }
+.meeting-card { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding: 8px 0; }
+.chip-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 1px solid var(--border-color); padding: 4px 8px; border-radius: 999px; }
+.overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); display: grid; place-items: center; }
+.settings { width: min(900px, 90vw); max-height: 90vh; overflow: auto; background: var(--bg-primary); }
+.sidebar { height: fit-content; }
+input { width: 100%; max-width: 400px; border-radius: 6px; border: 1px solid var(--border-color); padding: 8px; background: var(--bg-secondary); color: var(--text-primary); }
