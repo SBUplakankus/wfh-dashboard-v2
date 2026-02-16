@@ -1,18 +1,23 @@
 import React from 'react';
 import { openApp, openFile } from '../../utils/ipc';
 
-const ToolButton = ({ label, onClick }) => (
-  <button className="btn" type="button" onClick={onClick}>
+type ToolButtonProps = {
+  label: string;
+  onClick: () => void;
+};
+
+const ToolButton = ({ label, onClick }: ToolButtonProps) => (
+  <button className="md3-button w-full justify-start" type="button" onClick={onClick}>
     {label}
   </button>
 );
 
-const ToolsSection = ({ project }) => {
-  const paths = project.paths || {};
+const ToolsSection = ({ project }: { project: any }) => {
+  const paths = project?.paths || {};
   return (
-    <section className="card stack">
-      <h3>Tools</h3>
-      <div className="tools-grid">
+    <section className="md3-card space-y-4 p-6">
+      <h3 className="text-base font-semibold tracking-tight">Tools</h3>
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
         <ToolButton label="Open Kanri" onClick={() => openApp(paths.kanriPath)} />
         <ToolButton label="Open Joplin" onClick={() => openApp(paths.joplinPath)} />
         <ToolButton label="Open MarkText" onClick={() => openApp(paths.marktextPath)} />

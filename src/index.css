@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --md3-primary: #8da4ff;
+  --md3-on-primary: #0f1526;
+  --md3-secondary: #9cb0d7;
+  --md3-surface: #131722;
+  --md3-surface-variant: #1a2230;
+  --md3-outline: #303a4e;
+  --md3-on-surface: #e6ebf5;
+  --md3-on-surface-variant: #a9b4c9;
+  --md3-radius: 12px;
+}
+
+@layer base {
+  * { @apply box-border; }
+
+  body {
+    @apply m-0 bg-[#090d16] text-md3-on-surface antialiased;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    background-image:
+      radial-gradient(1100px 600px at 90% -5%, rgba(141, 164, 255, 0.14), transparent 60%),
+      radial-gradient(900px 420px at 10% -10%, rgba(156, 176, 215, 0.1), transparent 65%);
+  }
+
+  h1, h2, h3, h4, p {
+    @apply m-0;
+  }
+
+  button, input, select { font: inherit; }
+}
+
+@layer components {
+  .md3-card {
+    @apply rounded-md3 border border-md3-outline bg-md3-surface shadow-md3 backdrop-blur-sm;
+  }
+
+  .md3-button {
+    @apply inline-flex items-center justify-center rounded-[10px] border border-md3-outline bg-md3-surface-variant px-3 py-2 text-sm font-medium text-md3-on-surface transition duration-200 ease-out hover:-translate-y-px hover:border-[#3d4b67] hover:bg-[#202b3e] focus-visible:outline-none focus-visible:ring-2;
+  }
+
+  .md3-button-primary {
+    @apply border-transparent bg-md3-primary text-md3-on-primary hover:bg-[#9fb3ff];
+  }
+
+  .md3-input {
+    @apply w-full rounded-[10px] border border-md3-outline bg-[#0f1420] px-3 py-2 text-sm text-md3-on-surface placeholder:text-md3-on-surface-variant focus-visible:outline-none focus-visible:ring-2;
+  }
+
+  .md3-label {
+    @apply text-xs font-semibold uppercase tracking-[0.14em] text-md3-on-surface-variant;
+  }
+
+  :root[data-tile-style='glass'] .md3-card {
+    @apply bg-md3-surface backdrop-blur-xl;
+  }
+}
