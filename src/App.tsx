@@ -12,6 +12,7 @@ import DesignSystemView from './views/DesignSystemView';
 import IntegrationsView from './views/IntegrationsView';
 import SettingsModal from './components/SettingsModal';
 import ToastSystem from './components/ToastSystem';
+import GlobalSearch from './components/GlobalSearch';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus } from 'lucide-react';
 
@@ -20,6 +21,7 @@ const App: React.FC = () => {
   const [activeProjectId, setActiveProjectId] = useState<string>(projects[0].id);
   const [activeView, setActiveView] = useState<ViewType>('Dashboard');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
   
   const [theme, setTheme] = useState<ThemeConfig>({
@@ -70,6 +72,20 @@ const App: React.FC = () => {
     }
     root.style.setProperty('--full-bg', bgStyle);
   }, [theme]);
+
+  // Global keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Cmd+K or Ctrl+K for global search
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsSearchOpen(true);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const addToast = useCallback((message: string, type: Toast['type'] = 'info') => {
     const id = Math.random().toString(36).substring(2, 9);
@@ -166,6 +182,11 @@ const App: React.FC = () => {
           />
         )}
       </AnimatePresence>
+
+      <GlobalSearch 
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+      />
 
       <ToastSystem toasts={toasts} onRemove={removeToast} />
     </div>

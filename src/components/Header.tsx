@@ -2,6 +2,7 @@
 import React from 'react';
 import { Project, ThemeConfig, ViewType } from '../types';
 import { Command, ChevronRight, Search } from 'lucide-react';
+import SyncStatus from './SyncStatus';
 
 interface HeaderProps {
   activeView: ViewType;
@@ -57,6 +58,9 @@ const Header: React.FC<HeaderProps> = ({ activeView, project, onOpenSettings, th
           <Command className="w-3 h-3" style={{ color: 'var(--text-secondary)' }} />
           <span className="text-[10px] font-medium" style={{ color: 'var(--text-secondary)' }}>K</span>
         </div>
+
+        {/* Sync Status */}
+        <SyncStatus autoRefreshInterval={30} />
       </div>
     </header>
   );

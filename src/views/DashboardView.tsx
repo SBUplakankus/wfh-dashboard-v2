@@ -120,6 +120,9 @@ const DashboardView: React.FC<DashboardViewProps> = ({ theme, modularity, meetin
                </div>
              </section>
            )}
+
+           {/* Recent Items Widget */}
+           <RecentItemsWidget maxItems={5} />
         </div>
       </div>
     </div>
