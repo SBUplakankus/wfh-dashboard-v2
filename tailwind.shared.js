@@ -1,5 +1,5 @@
 const tailwindConfig = {
-  content: ['./src/**/*.{js,jsx,ts,tsx}', './SAMPLE/**/*.{ts,tsx}', '!./SAMPLE/node_modules/**'],
+  content: ['./src/**/*.{js,jsx,ts,tsx}', './SAMPLE/**/*.{js,jsx,ts,tsx}', '!./SAMPLE/node_modules/**'],
   theme: {
     extend: {
       colors: {
