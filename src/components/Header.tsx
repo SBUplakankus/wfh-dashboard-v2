@@ -1,27 +1,69 @@
+
 import React from 'react';
-import { motion } from 'framer-motion';
-import { Settings } from 'lucide-react';
+import { Project, ThemeConfig, ViewType } from '../types';
+import { Command, ChevronRight, Search } from 'lucide-react';
+import SyncStatus from './SyncStatus';
 
-type HeaderProps = {
-  title: string;
+interface HeaderProps {
+  activeView: ViewType;
+  project: Project;
   onOpenSettings: () => void;
-};
+  theme: ThemeConfig;
+}
 
-const Header = ({ title, onOpenSettings }: HeaderProps) => (
-  <motion.header
-    className="flex h-16 items-center justify-between border-b border-md3-outline px-6"
-    initial={{ opacity: 0, y: -6 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.22, ease: 'easeOut' }}
-  >
-    <div className="space-y-0.5">
-      <h1 className="text-lg font-bold tracking-tight text-md3-on-surface">{title}</h1>
-      <p className="text-[11px] font-medium text-md3-on-surface-variant">Game Dev Unified Dashboard v2</p>
-    </div>
-    <button className="md3-button h-8 w-8 p-0" aria-label="Open settings" onClick={onOpenSettings} type="button">
-      <Settings size={16} aria-hidden="true" />
-    </button>
-  </motion.header>
-);
+const Header: React.FC<HeaderProps> = ({ activeView, project, onOpenSettings, theme }) => {
+  const getStatusColor = (status: Project['status']) => {
+    switch(status) {
+      case 'Active': return 'bg-emerald-500/90';
+      case 'Paused': return 'bg-amber-500/90';
+      case 'Backlog': return 'bg-slate-500/90';
+      case 'Completed': return 'bg-blue-500/90';
+      default: return 'bg-slate-500/90';
+    }
+  };
+
+  return (
+    <header className="h-12 px-6 border-b flex items-center justify-between z-10 shrink-0" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--header-bg)' }}>
+      <div className="flex items-center gap-3">
+        {/* Breadcrumbs - tighter, cleaner */}
+        <div className="flex items-center gap-1.5 text-[11px]" style={{ color: 'var(--text-secondary)' }}>
+          <span>{project.category}</span>
+          <ChevronRight className="w-3 h-3 opacity-30" />
+          <span style={{ color: 'var(--text-primary)' }}>{activeView}</span>
+        </div>
+        
+        {/* Divider */}
+        <div className="h-3 w-px bg-white/10" />
+        
+        {/* Project name - clean, no status indicator */}
+        <h1 className="text-[13px] font-semibold" style={{ color: 'var(--text-primary)' }}>
+          {project.name}
+        </h1>
+      </div>
+      
+      <div className="flex items-center gap-3">
+        {/* Search - more refined */}
+        <div className="relative group">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-600" />
+          <input 
+            type="text" 
+            placeholder="Search..."
+            className="w-56 pl-8 pr-3 py-1.5 bg-white/[0.02] border border-white/[0.05] rounded-md text-[12px] focus:outline-none focus:border-white/20 transition-all placeholder:text-neutral-700"
+            style={{ color: 'var(--text-primary)' }}
+          />
+        </div>
+
+        {/* Cmd+K hint - cleaner */}
+        <div className="flex items-center gap-1.5 px-2 py-1 rounded border border-white/[0.08] bg-white/[0.02]">
+          <Command className="w-3 h-3" style={{ color: 'var(--text-secondary)' }} />
+          <span className="text-[10px] font-medium" style={{ color: 'var(--text-secondary)' }}>K</span>
+        </div>
+
+        {/* Sync Status */}
+        <SyncStatus autoRefreshInterval={30} />
+      </div>
+    </header>
+  );
+};
 
 export default Header;

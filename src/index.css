@@ -3,54 +3,61 @@
 @tailwind utilities;
 
 :root {
-  --md3-primary: #3b82f6;
-  --md3-on-primary: #f8fafc;
-  --md3-secondary: #94a3b8;
-  --md3-surface: #1a202c;
-  --md3-surface-variant: #212a3a;
-  --md3-outline: #2d3748;
-  --md3-on-surface: #f1f5f9;
-  --md3-on-surface-variant: #94a3b8;
-  --md3-radius: 10px;
+  /* Design Tokens - Tighter spacing for premium feel */
+  --space-1: 0.25rem; /* 4px */
+  --space-2: 0.5rem;  /* 8px */
+  --space-3: 0.75rem; /* 12px */
+  --space-4: 1rem;    /* 16px */
+  --space-6: 1.5rem;  /* 24px */
+  --space-8: 2rem;    /* 32px */
+  --space-12: 3rem;   /* 48px */
+  
+  /* Animation Durations */
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+  
+  /* Easing */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@layer base {
-  * { @apply box-border; }
-
-  body {
-    @apply m-0 bg-[#0A0E27] text-md3-on-surface antialiased;
-    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  }
-
-  h1, h2, h3, h4, p {
-    @apply m-0;
-  }
-
-  button, input, select { font: inherit; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: #08090a;
+  color: #f1f5f9;
+  margin: 0;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 14px; /* Slightly smaller base font for premium feel */
+  line-height: 1.5;
 }
 
-@layer components {
-  .md3-card {
-    @apply rounded-md3 border border-md3-outline bg-md3-surface transition duration-200 ease-out;
-  }
+/* Accessibility: Focus Ring */
+:focus-visible {
+  outline: none;
+  ring: 2px solid var(--accent, #0070f3);
+  ring-offset: 2px;
+  ring-offset-color: #000;
+}
 
-  .md3-button {
-    @apply inline-flex items-center justify-center rounded-lg border border-md3-outline bg-md3-surface-variant px-3 py-2 text-[13px] font-medium text-md3-on-surface transition duration-200 ease-out hover:bg-white/[0.05] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-md3-primary;
-  }
+.glass {
+  backdrop-filter: blur(var(--glass-blur, 12px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 12px));
+}
 
-  .md3-button-primary {
-    @apply border-transparent bg-md3-primary text-md3-on-primary hover:bg-[#2563eb];
-  }
-
-  .md3-input {
-    @apply w-full rounded-lg border border-md3-outline bg-md3-surface-variant px-3 py-2 text-[13px] text-md3-on-surface placeholder:text-md3-on-surface-variant focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-md3-primary;
-  }
-
-  .md3-label {
-    @apply text-xs font-semibold uppercase tracking-[0.14em] text-md3-on-surface-variant;
-  }
-
-  :root[data-tile-style='glass'] .md3-card {
-    @apply bg-md3-surface backdrop-blur-xl;
-  }
+/* Scrollbar Optimization - thinner, more refined */
+::-webkit-scrollbar {
+  width: 3px;
+  height: 3px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.12);
 }
