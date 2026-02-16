@@ -12,7 +12,13 @@ export const mockProjects: Project[] = [
     links: [
       { id: 'l1', label: 'Trello Board', url: '#' },
       { id: 'l2', label: 'Design Doc', url: '#' }
-    ]
+    ],
+    integrations: {
+      hasCalendar: true,  // Work project has meetings
+      hasKanban: true,    // Uses Kanri for task management
+      hasNotes: true,     // Uses Joplin for notes
+      hasDocs: true       // Uses MkDocs for documentation
+    }
   },
   {
     id: '2',
@@ -20,7 +26,13 @@ export const mockProjects: Project[] = [
     description: 'Next.js portfolio and blog.',
     category: 'Personal',
     status: 'Paused',
-    icon: 'User'
+    icon: 'User',
+    integrations: {
+      hasCalendar: false, // No meetings for personal project
+      hasKanban: false,   // No kanban needed
+      hasNotes: true,     // Uses Joplin for blog ideas
+      hasDocs: true       // Documentation for the site
+    }
   },
   {
     id: '3',
@@ -28,7 +40,13 @@ export const mockProjects: Project[] = [
     description: 'Internal rendering experiments in Rust.',
     category: 'Side',
     status: 'Backlog',
-    icon: 'Cpu'
+    icon: 'Cpu',
+    integrations: {
+      hasCalendar: false, // No meetings
+      hasKanban: true,    // Task tracking
+      hasNotes: true,     // Research notes
+      hasDocs: true       // Technical docs
+    }
   }
 ];
 

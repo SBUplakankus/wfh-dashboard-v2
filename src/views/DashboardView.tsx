@@ -1,34 +1,109 @@
 
 import React from 'react';
-import { ThemeConfig, ModularityConfig, Meeting } from '../types';
+import { ThemeConfig, ModularityConfig, Meeting, Project, KanriTask, JoplinNotebook, DocFile } from '../types';
 import { 
   ArrowUpRight, 
   Plus, 
   Clock, 
-  Video,
-  ListTodo
+  Video
 } from 'lucide-react';
+import RecentItemsWidget from '../components/RecentItemsWidget';
+import KanriStatsWidget from '../components/widgets/KanriStatsWidget';
+import JoplinStatsWidget from '../components/widgets/JoplinStatsWidget';
+import MkDocsStatsWidget from '../components/widgets/MkDocsStatsWidget';
 
 interface DashboardViewProps {
   theme: ThemeConfig;
   modularity: ModularityConfig;
   meetings: Meeting[];
+  currentProject?: Project;
 }
 
-const DashboardView: React.FC<DashboardViewProps> = ({ theme, modularity, meetings }) => {
+const DashboardView: React.FC<DashboardViewProps> = ({ theme, modularity, meetings, currentProject }) => {
   const glassStyle = theme.glassEnabled ? 'glass shadow-xl' : '';
+  
+  // Get project integrations (default to showing nothing if not specified)
+  const integrations = currentProject?.integrations || {
+    hasCalendar: false,
+    hasKanban: false,
+    hasNotes: false,
+    hasDocs: false
+  };
+  
+  // Mock integration data (in real app, this would come from actual integrations)
+  const mockKanriTasks: KanriTask[] = [
+    { id: 't1', title: 'Implement file browser UI', description: 'Create component for browsing MkDocs files', column: 'Done', priority: 'high', dueDate: new Date('2024-02-14'), tags: ['frontend', 'ui'] },
+    { id: 't2', title: 'Add Joplin integration', description: 'Connect to Joplin notes database', column: 'In Progress', priority: 'high', dueDate: new Date('2024-02-16'), tags: ['integration'] },
+    { id: 't3', title: 'Design calendar sync feature', description: 'Plan how to sync calendar events', column: 'To Do', priority: 'medium', dueDate: new Date('2024-02-20'), tags: ['planning'] },
+    { id: 't4', title: 'Write documentation', description: 'Document all integration features', column: 'To Do', priority: 'low', dueDate: new Date('2024-02-25'), tags: ['docs'] },
+    { id: 't5', title: 'Test Kanri browser', description: 'QA testing for task browser component', column: 'Review', priority: 'high', dueDate: new Date('2024-02-17'), tags: ['testing'] },
+    { id: 't6', title: 'Optimize performance', description: 'Profile and optimize file operations', column: 'To Do', priority: 'medium', dueDate: new Date('2024-02-22'), tags: ['performance'] }
+  ];
+  
+  const mockJoplinNotebooks: JoplinNotebook[] = [
+    { 
+      id: 'nb1', 
+      name: 'Project Notes', 
+      notes: [
+        { id: 'n1', title: 'Architecture decisions', content: 'Key decisions about app structure', created: new Date('2024-02-10'), modified: new Date('2024-02-15'), tags: ['architecture'], notebookId: 'nb1' },
+        { id: 'n2', title: 'Feature ideas', content: 'Brainstorming new features', created: new Date('2024-02-12'), modified: new Date('2024-02-14'), tags: ['ideas'], notebookId: 'nb1' }
+      ]
+    },
+    { 
+      id: 'nb2', 
+      name: 'Meeting Notes', 
+      notes: [
+        { id: 'n3', title: 'Daily standup 2/15', content: 'Team updates', created: new Date('2024-02-15'), modified: new Date('2024-02-15'), tags: ['meetings'], notebookId: 'nb2' }
+      ]
+    },
+    { 
+      id: 'nb3', 
+      name: 'Research', 
+      notes: [
+        { id: 'n4', title: 'React best practices', content: 'Research on React patterns', created: new Date('2024-02-08'), modified: new Date('2024-02-13'), tags: ['research', 'react'], notebookId: 'nb3' },
+        { id: 'n5', title: 'Electron integration', content: 'How to integrate with Electron', created: new Date('2024-02-09'), modified: new Date('2024-02-14'), tags: ['research', 'electron'], notebookId: 'nb3' }
+      ]
+    }
+  ];
+  
+  const mockDocFiles: DocFile[] = [
+    { name: 'getting-started', path: '/docs/getting-started', isFolder: true, modified: new Date('2024-02-15'), children: [
+      { name: 'index.md', path: '/docs/getting-started/index.md', isFolder: false, size: 1024, modified: new Date('2024-02-15') },
+      { name: 'installation.md', path: '/docs/getting-started/installation.md', isFolder: false, size: 2048, modified: new Date('2024-02-14') }
+    ]},
+    { name: 'api', path: '/docs/api', isFolder: true, modified: new Date('2024-02-13'), children: [
+      { name: 'reference.md', path: '/docs/api/reference.md', isFolder: false, size: 4096, modified: new Date('2024-02-13') }
+    ]},
+    { name: 'README.md', path: '/docs/README.md', isFolder: false, size: 512, modified: new Date('2024-02-16') }
+  ];
+  
+  // Filter meetings for work calendar only if integration is enabled
+  const relevantMeetings = integrations.hasCalendar ? meetings.filter(m => m.calendarType === 'work') : [];
+  const upcomingMeeting = relevantMeetings.length > 0 ? relevantMeetings[0] : null;
+  
+  // Count active tasks for summary
+  const activeTasks = integrations.hasKanban ? mockKanriTasks.filter(t => t.column === 'In Progress').length : 0;
 
   return (
     <div className="p-10 space-y-12 max-w-[1400px] mx-auto">
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight mb-2" style={{ color: 'var(--text-primary)' }}>Workspace Overview</h1>
-        <p className="text-[13px]" style={{ color: 'var(--text-secondary)' }}>Welcome back. You have {meetings.length} meetings today and 8 pending tasks.</p>
+        <h1 className="text-2xl font-semibold tracking-tight mb-2" style={{ color: 'var(--text-primary)' }}>
+          {currentProject?.name || 'Workspace'} Overview
+        </h1>
+        <p className="text-[13px]" style={{ color: 'var(--text-secondary)' }}>
+          Welcome back. 
+          {integrations.hasCalendar && relevantMeetings.length > 0 && ` You have ${relevantMeetings.length} ${relevantMeetings.length === 1 ? 'meeting' : 'meetings'} today`}
+          {integrations.hasKanban && activeTasks > 0 && (integrations.hasCalendar ? ' and' : '') && ` ${activeTasks} active ${activeTasks === 1 ? 'task' : 'tasks'}`}
+          {!integrations.hasCalendar && !integrations.hasKanban && ' Your project dashboard is ready.'}
+        </p>
       </header>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
         <div className="xl:col-span-2 space-y-8">
+          {/* Integration Stat Widgets */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {modularity.showUpcomingMeeting && (
+            {/* Show upcoming meeting widget only if project has calendar integration */}
+            {integrations.hasCalendar && modularity.showUpcomingMeeting && upcomingMeeting && (
               <div 
                 className={`p-6 border transition-all duration-300 hover:-translate-y-1 hover:border-blue-500/50 cursor-default ${glassStyle}`} 
                 style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border)', borderRadius: 'var(--radius)' }}
@@ -39,46 +114,38 @@ const DashboardView: React.FC<DashboardViewProps> = ({ theme, modularity, meetin
                   </div>
                 </div>
                 <h3 className="text-[15px] font-semibold mb-1">Upcoming Meeting</h3>
-                <p className="text-[12px] mb-6" style={{ color: 'var(--text-secondary)' }}>Daily Standup begins in 15 minutes.</p>
+                <p className="text-[12px] mb-6" style={{ color: 'var(--text-secondary)' }}>{upcomingMeeting.title} at {upcomingMeeting.time}</p>
                 <button 
                   className="w-full py-2.5 text-white text-[12px] font-bold rounded-lg flex items-center justify-center gap-2 transition-transform active:scale-95"
                   style={{ backgroundColor: 'var(--accent)' }}
                 >
-                  <Video className="w-3.5 h-3.5" /> Join Google Meet
+                  <Video className="w-3.5 h-3.5" /> Join Meeting
                 </button>
               </div>
             )}
 
-            {modularity.showSprintProgress && (
-              <div 
-                className={`p-6 border transition-all duration-300 hover:-translate-y-1 cursor-default ${glassStyle}`}
-                style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border)', borderRadius: 'var(--radius)' }}
-              >
-                <div className="flex items-center justify-between mb-6">
-                  <div className="p-2 rounded-lg bg-green-500/10"><ListTodo className="w-4 h-4 text-green-500" /></div>
-                </div>
-                <h3 className="text-[15px] font-semibold mb-1">Sprint Progress</h3>
-                <div className="space-y-3 mt-auto">
-                  <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-green-500 transition-all duration-1000" 
-                      style={{ width: '65%' }}
-                    />
-                  </div>
-                  <div className="flex justify-between text-[10px] font-bold text-neutral-500 uppercase">
-                    <span>65% Completed</span>
-                    <span>12 / 18 Tasks</span>
-                  </div>
-                </div>
-              </div>
+            {/* Show Kanri stats only if project has kanban integration */}
+            {integrations.hasKanban && (
+              <KanriStatsWidget tasks={mockKanriTasks} glassStyle={glassStyle} />
+            )}
+            
+            {/* Show Joplin stats only if project has notes integration */}
+            {integrations.hasNotes && (
+              <JoplinStatsWidget notebooks={mockJoplinNotebooks} glassStyle={glassStyle} />
+            )}
+            
+            {/* Show MkDocs stats only if project has docs integration */}
+            {integrations.hasDocs && (
+              <MkDocsStatsWidget files={mockDocFiles} glassStyle={glassStyle} />
             )}
           </div>
 
-          {modularity.showSchedule && (
+          {/* Show schedule only if project has calendar integration */}
+          {integrations.hasCalendar && modularity.showSchedule && relevantMeetings.length > 0 && (
             <section>
               <h2 className="text-[11px] font-bold text-neutral-500 uppercase tracking-[0.2em] mb-6">Today's Schedule</h2>
               <div className="space-y-1">
-                {meetings.map((m) => (
+                {relevantMeetings.map((m) => (
                   <div 
                     key={m.id} 
                     className="group flex items-center justify-between p-3.5 rounded-lg border border-transparent transition-all hover:bg-white/[0.03] hover:translate-x-1"

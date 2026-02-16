@@ -130,13 +130,13 @@ const App: React.FC = () => {
     }
 
     switch(activeView) {
-      case 'Dashboard': return <DashboardView theme={theme} modularity={modularity} meetings={mockMeetings} />;
+      case 'Dashboard': return <DashboardView theme={theme} modularity={modularity} meetings={mockMeetings} currentProject={activeProject} />;
       case 'Calendar': return <div className="p-10 max-w-[1200px] mx-auto"><CalendarView theme={theme} /></div>;
       case 'WorkWeek': return <div className="p-8 h-full"><WorkWeekView theme={theme} meetings={mockMeetings} /></div>;
       case 'Tools': return <ToolsView theme={theme} />;
       case 'DesignSystem': return <DesignSystemView theme={theme} />;
       case 'Integrations': return <IntegrationsView />;
-      default: return <DashboardView theme={theme} modularity={modularity} meetings={mockMeetings} />;
+      default: return <DashboardView theme={theme} modularity={modularity} meetings={mockMeetings} currentProject={activeProject} />;
     }
   };
 

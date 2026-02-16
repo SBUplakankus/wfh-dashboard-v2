@@ -1,4 +1,11 @@
 
+export interface ProjectIntegrations {
+  hasCalendar: boolean;
+  hasKanban: boolean;
+  hasNotes: boolean;
+  hasDocs: boolean;
+}
+
 export interface Project {
   id: string;
   name: string;
@@ -7,6 +14,7 @@ export interface Project {
   status: 'Active' | 'Paused' | 'Completed' | 'Backlog';
   icon?: string; // Lucide icon name
   links?: CustomLink[];
+  integrations?: ProjectIntegrations;
 }
 
 export interface CustomLink {
