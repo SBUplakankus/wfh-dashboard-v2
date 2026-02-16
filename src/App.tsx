@@ -13,6 +13,7 @@ import IntegrationsView from './views/IntegrationsView';
 import SettingsModal from './components/SettingsModal';
 import ToastSystem from './components/ToastSystem';
 import GlobalSearch from './components/GlobalSearch';
+import KeyboardShortcutsHelp from './components/KeyboardShortcutsHelp';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus } from 'lucide-react';
 
@@ -22,6 +23,7 @@ const App: React.FC = () => {
   const [activeView, setActiveView] = useState<ViewType>('Dashboard');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isShortcutsHelpOpen, setIsShortcutsHelpOpen] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
   
   const [theme, setTheme] = useState<ThemeConfig>({
@@ -80,6 +82,18 @@ const App: React.FC = () => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         setIsSearchOpen(true);
+      }
+      
+      // Cmd+, or Ctrl+, for settings
+      if ((e.metaKey || e.ctrlKey) && e.key === ',') {
+        e.preventDefault();
+        setIsSettingsOpen(true);
+      }
+      
+      // ? for keyboard shortcuts help
+      if (e.key === '?' && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        e.preventDefault();
+        setIsShortcutsHelpOpen(true);
       }
     };
 
@@ -186,6 +200,11 @@ const App: React.FC = () => {
       <GlobalSearch 
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
+      />
+
+      <KeyboardShortcutsHelp 
+        isOpen={isShortcutsHelpOpen}
+        onClose={() => setIsShortcutsHelpOpen(false)}
       />
 
       <ToastSystem toasts={toasts} onRemove={removeToast} />
