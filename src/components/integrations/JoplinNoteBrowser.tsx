@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { JoplinNote, JoplinNotebook } from '../../types';
-import { BookOpen, FileText, Tag, Clock, Search, ExternalLink, ChevronRight, ChevronDown } from 'lucide-react';
+import { BookOpen, FileText, Tag, Clock, Search, ExternalLink, ChevronRight, ChevronDown, Plus } from 'lucide-react';
+import CreateNoteModal from './CreateNoteModal';
 
 interface JoplinNoteBrowserProps {
   joplinDataPath?: string;
@@ -13,6 +14,7 @@ const JoplinNoteBrowser: React.FC<JoplinNoteBrowserProps> = ({ joplinDataPath, o
   const [error, setError] = useState<string | null>(null);
   const [expandedNotebooks, setExpandedNotebooks] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   // Mock data for demo purposes (will be replaced with actual Joplin API/database reading)
   useEffect(() => {
@@ -161,6 +163,13 @@ const JoplinNoteBrowser: React.FC<JoplinNoteBrowserProps> = ({ joplinDataPath, o
           <span>•</span>
           <span>{notebooks.reduce((sum, nb) => sum + nb.notes.length, 0)} notes</span>
         </div>
+        <button
+          onClick={() => setIsCreateModalOpen(true)}
+          className="p-1 hover:bg-white/[0.04] rounded transition-colors"
+          title="Create Note"
+        >
+          <Plus className="w-3.5 h-3.5" style={{ color: 'var(--text-secondary)' }} />
+        </button>
       </div>
 
       {/* Notebooks List */}
@@ -241,6 +250,15 @@ const JoplinNoteBrowser: React.FC<JoplinNoteBrowserProps> = ({ joplinDataPath, o
           );
         })
       )}
+
+      <CreateNoteModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onNoteCreated={(note) => {
+          // In real implementation, this would refresh the notes list
+          console.log('Note created:', note);
+        }}
+      />
     </div>
   );
 };

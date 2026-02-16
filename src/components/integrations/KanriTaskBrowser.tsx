@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { KanriTask, KanriBoard } from '../../types';
-import { Trello, CheckCircle2, Circle, Clock, AlertCircle, ExternalLink, Filter } from 'lucide-react';
+import { Trello, CheckCircle2, Circle, Clock, AlertCircle, ExternalLink, Filter, Plus } from 'lucide-react';
+import CreateTaskModal from './CreateTaskModal';
 
 interface KanriTaskBrowserProps {
   kanriDataPath?: string;
@@ -12,6 +13,7 @@ const KanriTaskBrowser: React.FC<KanriTaskBrowserProps> = ({ kanriDataPath, onTa
   const [loading, setLoading] = useState(false);
   const [filterColumn, setFilterColumn] = useState<string | null>(null);
   const [filterPriority, setFilterPriority] = useState<string | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   // Mock data for demo purposes (will be replaced with actual Kanri database reading)
   useEffect(() => {
@@ -189,10 +191,19 @@ const KanriTaskBrowser: React.FC<KanriTaskBrowserProps> = ({ kanriDataPath, onTa
         </div>
 
         {/* Stats */}
-        <div className="flex items-center gap-3 text-[11px]" style={{ color: 'var(--text-secondary)' }}>
-          <span>{filteredTasks.length} tasks</span>
-          <span>•</span>
-          <span>{filteredTasks.filter(t => t.column === 'Done').length} completed</span>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3 text-[11px]" style={{ color: 'var(--text-secondary)' }}>
+            <span>{filteredTasks.length} tasks</span>
+            <span>•</span>
+            <span>{filteredTasks.filter(t => t.column === 'Done').length} completed</span>
+          </div>
+          <button
+            onClick={() => setIsCreateModalOpen(true)}
+            className="p-1 hover:bg-white/[0.04] rounded transition-colors"
+            title="Create Task"
+          >
+            <Plus className="w-3.5 h-3.5" style={{ color: 'var(--text-secondary)' }} />
+          </button>
         </div>
       </div>
 
@@ -283,6 +294,15 @@ const KanriTaskBrowser: React.FC<KanriTaskBrowserProps> = ({ kanriDataPath, onTa
           <p className="text-[11px] mt-1">Try changing the filters</p>
         </div>
       )}
+
+      <CreateTaskModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onTaskCreated={(task) => {
+          // In real implementation, this would add the task to the board
+          console.log('Task created:', task);
+        }}
+      />
     </div>
   );
 };
