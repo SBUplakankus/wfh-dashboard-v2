@@ -9,9 +9,10 @@ type IntegrationTab = 'mkdocs' | 'joplin' | 'kanri';
 
 const IntegrationsView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<IntegrationTab>('mkdocs');
-  const [mkdocsPath] = useState<string>('/home/runner/work/wfh-dashboard-v2/wfh-dashboard-v2/docs');
-  const [joplinPath] = useState<string>('/home/runner/.config/joplin-desktop');
-  const [kanriPath] = useState<string>('/home/runner/.config/kanri');
+  // TODO: Load these from configuration/settings
+  const [mkdocsPath] = useState<string>(process.env.MKDOCS_PATH || './docs');
+  const [joplinPath] = useState<string>(process.env.JOPLIN_PATH || '');
+  const [kanriPath] = useState<string>(process.env.KANRI_PATH || '');
   const [selectedItem, setSelectedItem] = useState<DocFile | JoplinNote | KanriTask | null>(null);
 
   const handleFileClick = (file: DocFile) => {
