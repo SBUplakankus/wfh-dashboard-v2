@@ -62,9 +62,8 @@ body {
   background: rgba(255, 255, 255, 0.12);
 }
 
-/* Hover Effects - Subtle Glow & Color Changes (No translateY) */
+/* Hover Effects - Color & Border Changes Only (No Glow) */
 button:not(.no-hover):hover {
-  box-shadow: 0 0 12px rgba(59, 130, 246, 0.3);
   transition: all 0.2s ease;
 }
 
@@ -74,15 +73,14 @@ button:not(.no-hover):hover {
 }
 
 /* Clickable cards and interactive elements */
-.hover-glow:hover {
-  box-shadow: 0 0 16px rgba(59, 130, 246, 0.25);
+.hover-effect:hover {
   border-color: rgba(59, 130, 246, 0.4);
+  background-color: rgba(59, 130, 246, 0.05);
   transition: all 0.2s ease;
 }
 
 /* Links and clickable items */
 a:hover,
 .clickable:hover {
-  box-shadow: 0 0 12px rgba(59, 130, 246, 0.25);
   transition: all 0.2s ease;
 }
