@@ -1,0 +1,400 @@
+# Building WFH Dashboard Electron Application
+
+This guide provides detailed instructions for building the WFH Dashboard as a standalone Electron application for Windows, macOS, and Linux.
+
+## Prerequisites
+
+### All Platforms
+- **Node.js**: Version 16.x or higher (LTS recommended)
+- **npm**: Version 7.x or higher (comes with Node.js)
+- **Git**: For cloning the repository
+
+### Platform-Specific Requirements
+
+#### Windows
+- Windows 7 or higher (Windows 10/11 recommended)
+- No additional requirements for building Windows executables
+
+#### macOS
+- macOS 10.13 (High Sierra) or higher
+- Xcode Command Line Tools: `xcode-select --install`
+- For code signing (optional): Apple Developer account
+
+#### Linux
+- Ubuntu 18.04+ or equivalent Linux distribution
+- For Windows builds on Linux: Wine (optional, for cross-platform builds)
+
+## Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/SBUplakankus/wfh-dashboard-v2.git
+   cd wfh-dashboard-v2
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+   This will install all required packages including:
+   - React, TypeScript, and Vite for the frontend
+   - Electron for the desktop shell
+   - electron-builder for packaging
+
+## Development Workflow
+
+### Running in Development Mode
+
+1. **Start the Vite dev server:**
+   ```bash
+   npm run dev
+   ```
+   This starts the development server on `http://localhost:3000` with hot module replacement.
+
+2. **Start Electron (in a separate terminal):**
+   ```bash
+   npm run electron
+   ```
+   This opens the Electron window loading from the dev server.
+
+The app will automatically reload when you make changes to the source code.
+
+### Building for Production Testing
+
+Before creating a distributable package, test the production build:
+
+1. **Build the web assets:**
+   ```bash
+   npm run build
+   ```
+   This creates optimized production files in the `dist/` folder.
+
+2. **Test with Electron:**
+   ```bash
+   npm run electron
+   ```
+   Electron will now load from the production build instead of the dev server.
+
+## Creating Distributable Packages
+
+### Windows Executable
+
+**On Windows, macOS, or Linux:**
+
+```bash
+npm run electron:build:win
+```
+
+This creates:
+- **NSIS Installer**: `release/WFH Dashboard Setup X.X.X.exe`
+  - Full installer with start menu shortcuts
+  - Supports per-user and per-machine installation
+  - Can be customized with install location
+  
+- **Portable Executable**: `release/WFH Dashboard X.X.X.exe`
+  - Standalone executable that can run without installation
+  - Perfect for USB drives or network shares
+  - No admin rights required
+
+**First-time notes:**
+- The first build will download Windows build tools (~150 MB)
+- Subsequent builds will be much faster
+- Windows may show a SmartScreen warning for unsigned executables
+
+### macOS Application
+
+**On macOS only:**
+
+```bash
+npm run electron:build:mac
+```
+
+This creates:
+- **DMG Image**: `release/WFH Dashboard-X.X.X.dmg`
+  - Drag-and-drop installer
+  - Standard macOS application format
+
+**Notes:**
+- macOS builds require macOS with Xcode command line tools
+- Apps are unsigned by default (fine for personal use)
+- For distribution, code signing with Apple Developer cert is recommended
+
+### Linux Application
+
+**On any platform:**
+
+```bash
+npm run electron:build:linux
+```
+
+This creates:
+- **AppImage**: `release/WFH Dashboard-X.X.X.AppImage`
+  - Universal Linux package
+  - Run directly without installation: `chmod +x *.AppImage && ./WFH-Dashboard-*.AppImage`
+  - Works on most Linux distributions
+
+- **Debian Package**: `release/wfh-dashboard-v2_X.X.X_amd64.deb`
+  - For Debian/Ubuntu systems
+  - Install with: `sudo dpkg -i wfh-dashboard-v2_*.deb`
+
+### Build for Current Platform
+
+To build for whatever platform you're currently on:
+
+```bash
+npm run electron:build
+```
+
+## Build Configuration
+
+The build configuration is defined in `package.json` under the `"build"` section:
+
+```json
+{
+  "build": {
+    "appId": "com.wfh-dashboard-v2.app",
+    "productName": "WFH Dashboard",
+    "directories": {
+      "output": "release",
+      "buildResources": "public"
+    },
+    "files": [
+      "dist/**/*",
+      "public/main.js",
+      "public/preload.js",
+      "package.json"
+    ]
+  }
+}
+```
+
+### Customization Options
+
+#### Change App Name
+Edit `productName` in `package.json`:
+```json
+"productName": "Your Custom Name"
+```
+
+#### Add Application Icon
+1. Create icon files:
+   - Windows: 256x256 PNG or .ico file
+   - macOS: 512x512 PNG or .icns file
+   - Linux: 512x512 PNG file
+
+2. Save as `public/icon.png` (or separate files per platform)
+
+3. Update `package.json`:
+```json
+"win": {
+  "icon": "public/icon.ico"
+},
+"mac": {
+  "icon": "public/icon.png"
+},
+"linux": {
+  "icon": "public/icon.png"
+}
+```
+
+#### Change Output Directory
+Edit `directories.output` in `package.json`:
+```json
+"directories": {
+  "output": "build-output"
+}
+```
+
+## Troubleshooting
+
+### Build Errors
+
+**Error: "Cannot find module 'electron-builder'"**
+```bash
+npm install
+```
+
+**Error: "vite: command not found"**
+```bash
+rm -rf node_modules package-lock.json
+npm install
+```
+
+### Asset Loading Issues
+
+**Problem: App shows blank screen or 404 errors**
+
+This happens when assets are referenced with absolute paths instead of relative paths.
+
+**Solution:** Verify `vite.config.ts` has `base: './'`:
+```typescript
+export default defineConfig({
+  base: './',  // Critical for Electron file:// protocol
+  // ... other config
+});
+```
+
+Then rebuild:
+```bash
+npm run build
+```
+
+**Verify fix:** Check `dist/index.html` - paths should be `./assets/...` not `/assets/...`
+
+### Platform-Specific Issues
+
+#### Windows
+
+**SmartScreen Warning:**
+- Expected for unsigned apps
+- Click "More info" → "Run anyway"
+- For production, consider code signing certificate
+
+**Antivirus False Positives:**
+- Some antivirus software flags Electron apps
+- Add exception or submit false positive report
+
+#### macOS
+
+**"App is damaged" Error:**
+- macOS Gatekeeper blocks unsigned apps
+- Right-click → Open (instead of double-click)
+- Or: `xattr -cr /path/to/app.app`
+
+**Building on M1/M2 Mac:**
+- Builds work natively on Apple Silicon
+- For Intel builds, add `"target": "darwin"` to mac config
+
+#### Linux
+
+**AppImage Won't Run:**
+```bash
+chmod +x WFH-Dashboard-*.AppImage
+./WFH-Dashboard-*.AppImage
+```
+
+**FUSE Error:**
+```bash
+# Extract and run directly
+./WFH-Dashboard-*.AppImage --appimage-extract
+./squashfs-root/wfh-dashboard-v2
+```
+
+## Advanced Topics
+
+### Code Signing
+
+#### Windows
+- Purchase code signing certificate
+- Install certificate in Windows certificate store
+- electron-builder will automatically use it
+
+#### macOS
+- Requires Apple Developer account ($99/year)
+- Configure in `package.json`:
+```json
+"mac": {
+  "identity": "Developer ID Application: Your Name (TEAM_ID)"
+}
+```
+
+### Auto-Updates
+
+To add auto-update functionality:
+
+1. Install electron-updater:
+```bash
+npm install electron-updater
+```
+
+2. Add update server configuration to `package.json`
+3. Implement update checks in `public/main.js`
+
+See: https://www.electron.build/auto-update
+
+### Cross-Platform Building
+
+**Build Windows apps on macOS/Linux:**
+- Requires Wine on Linux
+- Limited support on macOS
+- Recommended: Build on target platform or use CI/CD
+
+**Build all platforms in CI:**
+- Use GitHub Actions
+- Matrix builds for each platform
+- Store artifacts for download
+
+## Build Output Structure
+
+```
+release/
+├── WFH Dashboard Setup 1.0.0.exe       # Windows installer
+├── WFH Dashboard 1.0.0.exe             # Windows portable
+├── WFH Dashboard-1.0.0.dmg             # macOS DMG
+├── WFH Dashboard-1.0.0.AppImage        # Linux AppImage
+├── wfh-dashboard-v2_1.0.0_amd64.deb    # Debian package
+├── builder-debug.yml                   # Build metadata
+└── builder-effective-config.yaml       # Effective config
+```
+
+## Performance Optimization
+
+### Reduce Bundle Size
+
+The default build shows a warning about large chunks. To optimize:
+
+1. **Code splitting:**
+```typescript
+// vite.config.ts
+export default defineConfig({
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom'],
+          'charts': ['recharts'],
+          'utils': ['fuse.js', 'ical.js']
+        }
+      }
+    }
+  }
+});
+```
+
+2. **Lazy loading:**
+```typescript
+// Lazy load heavy components
+const AnalyticsView = lazy(() => import('./views/AnalyticsView'));
+```
+
+## Testing Builds
+
+### Manual Testing Checklist
+
+- [ ] App launches successfully
+- [ ] All views render correctly
+- [ ] Theme switching works
+- [ ] File operations work (if configured)
+- [ ] Settings persist across restarts
+- [ ] Window size/position is remembered
+- [ ] Keyboard shortcuts function
+- [ ] External links open in browser
+- [ ] No console errors
+
+### Automated Testing
+
+Run tests before building:
+```bash
+npm test
+```
+
+## Getting Help
+
+- **Issues:** https://github.com/SBUplakankus/wfh-dashboard-v2/issues
+- **electron-builder docs:** https://www.electron.build/
+- **Electron docs:** https://www.electronjs.org/docs
+
+## License
+
+MIT License - See LICENSE file for details

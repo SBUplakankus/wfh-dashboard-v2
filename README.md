@@ -54,6 +54,8 @@ npm run electron
 
 ## Building Electron Executable
 
+> **📖 For detailed build instructions, troubleshooting, and advanced topics, see [BUILD.md](BUILD.md)**
+
 ### Prerequisites
 
 - Node.js 16+ and npm installed
@@ -161,6 +163,7 @@ When configured, the **Tools** section provides:
 
 ## Documentation index
 
+- `/BUILD.md` - **Comprehensive Electron build guide for creating Windows EXE, macOS DMG, and Linux packages**
 - `/docs/SETUP.md`
 - `/docs/ARCHITECTURE.md`
 - `/docs/CUSTOMIZATION.md`
