@@ -20,7 +20,7 @@ const CalendarSettings = () => {
           placeholder="/path/to/calendar.ics"
         />
       </label>
-      <label className="flex items-center gap-2 text-sm text-md3-onSurface">
+      <label className="flex items-center gap-2 text-sm text-md3-on-surface">
         <input
           type="checkbox"
           checked={calendarSettings.hideAllDayEvents}
@@ -28,7 +28,7 @@ const CalendarSettings = () => {
         />
         Hide all-day events
       </label>
-      <label className="flex items-center gap-2 text-sm text-md3-onSurface">
+      <label className="flex items-center gap-2 text-sm text-md3-on-surface">
         <input
           type="checkbox"
           checked={calendarSettings.hidePastMeetings}
@@ -45,7 +45,7 @@ const CalendarSettings = () => {
           placeholder="e.g. America/New_York"
         />
       </label>
-      <p className="text-sm text-md3-onSurfaceVariant">Set the local ICS file path used by the calendar parser.</p>
+      <p className="text-sm text-md3-on-surface-variant">Set the local ICS file path used by the calendar parser.</p>
     </div>
   );
 };

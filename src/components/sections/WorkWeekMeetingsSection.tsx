@@ -81,7 +81,7 @@ const WorkWeekMeetingsSection = ({ events, timeZone }: WorkWeekMeetingsSectionPr
           </button>
         </div>
       </div>
-      <p className="text-sm text-md3-onSurfaceVariant">{formatWeekRange(weekStart)}</p>
+      <p className="text-sm text-md3-on-surface-variant">{formatWeekRange(weekStart)}</p>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
         {weekdays.map((day) => {
           const meetings = meetingsByDay[day.toDateString()] || [];
@@ -90,23 +90,23 @@ const WorkWeekMeetingsSection = ({ events, timeZone }: WorkWeekMeetingsSectionPr
             <article
               key={day.toISOString()}
               className={`rounded-[10px] border p-3 ${
-                isToday ? 'border-md3-primary bg-md3-primary/10' : 'border-md3-outline bg-md3-surface-variant/45'
+                isToday ? 'border-md3-primary bg-[#1d2840]' : 'border-md3-outline bg-md3-surface-variant'
               }`}
             >
               <h4 className="md3-label text-[11px]">{formatDayHeader(day)}</h4>
               <div className="mt-3 space-y-3">
-                {meetings.length === 0 ? <p className="text-sm text-md3-onSurfaceVariant">Clear</p> : null}
+                {meetings.length === 0 ? <p className="text-sm text-md3-on-surface-variant">Clear</p> : null}
                 {meetings.map((meeting) => {
                   const start = new Date(meeting.start);
                   const end = new Date(meeting.end);
                   return (
                     <div key={`${meeting.id}-${start.toISOString()}`} className="rounded-[10px] border border-md3-outline border-l-2 border-l-md3-primary bg-[#141c2b] p-3">
-                      <p className="text-xs text-md3-onSurfaceVariant">
+                      <p className="text-xs text-md3-on-surface-variant">
                         {formatTime(start, timeZone)} - {formatTime(end, timeZone)}
                       </p>
-                      <strong className="mt-1 block text-sm font-semibold text-md3-onSurface">{meeting.title}</strong>
-                      <p className="mt-1 text-xs text-md3-onSurfaceVariant">Duration: {durationLabel(start, end)}</p>
-                      <p className="text-xs text-md3-onSurfaceVariant">{meeting.calendarName || 'Default Calendar'}</p>
+                      <strong className="mt-1 block text-sm font-semibold text-md3-on-surface">{meeting.title}</strong>
+                      <p className="mt-1 text-xs text-md3-on-surface-variant">Duration: {durationLabel(start, end)}</p>
+                      <p className="text-xs text-md3-on-surface-variant">{meeting.calendarName || 'Default Calendar'}</p>
                       {meeting.url ? (
                         <button className="md3-button mt-2" type="button" onClick={() => openMeetingUrl(meeting.url)}>
                           Join

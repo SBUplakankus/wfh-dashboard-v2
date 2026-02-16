@@ -9,12 +9,12 @@ type GroupProps = {
 const Group = ({ title, meetings }: GroupProps) => (
   <div className="space-y-3">
     <h4 className="md3-label">{title}</h4>
-    {meetings.length === 0 ? <p className="text-sm text-md3-onSurfaceVariant">No meetings</p> : null}
+    {meetings.length === 0 ? <p className="text-sm text-md3-on-surface-variant">No meetings</p> : null}
     {meetings.map((meeting) => (
       <article key={`${meeting.id}-${meeting.start}`} className="md3-card flex items-center justify-between gap-3 p-3">
         <div className="space-y-1">
-          <strong className="text-sm font-semibold text-md3-onSurface">{meeting.title}</strong>
-          <p className="text-xs text-md3-onSurfaceVariant">{new Date(meeting.start).toLocaleString()}</p>
+          <strong className="text-sm font-semibold text-md3-on-surface">{meeting.title}</strong>
+          <p className="text-xs text-md3-on-surface-variant">{new Date(meeting.start).toLocaleString()}</p>
         </div>
         {meeting.url ? (
           <button className="md3-button" type="button" onClick={() => openMeetingUrl(meeting.url)}>

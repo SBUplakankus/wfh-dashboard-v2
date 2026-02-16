@@ -20,7 +20,7 @@ type CalendarEvent = {
   end: Date | string;
   allDay?: boolean;
   url?: string;
-  calendarName?: string;
+  calendarName?: any;
 };
 
 const sampleEvents: CalendarEvent[] = [
@@ -57,7 +57,7 @@ const Dashboard = ({ onOpenSettings }: DashboardProps) => {
       return;
     }
     readFile(calendarFile)
-      .then((content: string) => setEvents(parseICS(content)))
+      .then((content: string) => setEvents(parseICS(content) as CalendarEvent[]))
       .catch(() => setEvents(sampleEvents));
   }, [currentProject?.paths?.calendarFile]);
 

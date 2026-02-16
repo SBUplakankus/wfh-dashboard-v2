@@ -15,8 +15,8 @@ const Header = ({ title, onOpenSettings }: HeaderProps) => (
     transition={{ duration: 0.22, ease: 'easeOut' }}
   >
     <div className="space-y-1">
-      <h1 className="text-2xl font-semibold tracking-tight text-md3-onSurface">{title}</h1>
-      <p className="text-sm text-md3-onSurfaceVariant">Game Dev Unified Dashboard v2</p>
+      <h1 className="text-2xl font-semibold tracking-tight text-md3-on-surface">{title}</h1>
+      <p className="text-sm text-md3-on-surface-variant">Game Dev Unified Dashboard v2</p>
     </div>
     <button className="md3-button h-9 w-9 p-0" aria-label="Open settings" onClick={onOpenSettings} type="button">
       <Settings size={16} aria-hidden="true" />

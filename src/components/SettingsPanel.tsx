@@ -60,7 +60,7 @@ const SettingsPanel = ({ open, onClose }: SettingsPanelProps) => {
               {activeTab === 'Projects' ? <ProjectManager /> : null}
               {activeTab === 'Theme' ? <ThemeCustomizer /> : null}
               {activeTab === 'Calendar' ? <CalendarSettings /> : null}
-              {activeTab === 'Tools' ? <p className="text-sm text-md3-onSurfaceVariant">Tool paths are configured per-project in this MVP.</p> : null}
+              {activeTab === 'Tools' ? <p className="text-sm text-md3-on-surface-variant">Tool paths are configured per-project in this MVP.</p> : null}
             </motion.div>
           </motion.div>
         </motion.div>

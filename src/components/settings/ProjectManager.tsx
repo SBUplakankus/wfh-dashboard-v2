@@ -39,7 +39,7 @@ const ProjectManager = () => {
       <div className="space-y-2">
         {projects.map((project: any) => (
           <div key={project.id} className="md3-card flex items-center justify-between gap-2 p-3">
-            <span className="flex items-center gap-2 text-sm text-md3-onSurface"><IconGlyph name={project.icon} type={project.type} /> {project.name}</span>
+            <span className="flex items-center gap-2 text-sm text-md3-on-surface"><IconGlyph name={project.icon} type={project.type} /> {project.name}</span>
             {!['game-dev', 'work', 'learning'].includes(project.id) ? (
               <button className="md3-button border-red-900 bg-red-950/25 text-red-200 hover:bg-red-900/35" type="button" onClick={() => removeProject(project.id)}>
                 Delete

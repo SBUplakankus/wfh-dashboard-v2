@@ -19,7 +19,7 @@ const Sidebar = ({ onOpenSettings }: SidebarProps) => {
             <button
               key={project.id}
               className={`md3-button w-full justify-start gap-2 border-l-2 ${
-                active ? 'border-l-md3-primary bg-md3-primary/15 text-white' : 'border-l-transparent bg-transparent'
+                active ? 'border-l-md3-primary bg-[#243458] text-white' : 'border-l-transparent bg-transparent'
               }`}
               onClick={() => setCurrentProjectId(project.id)}
               type="button"
