@@ -5,6 +5,9 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   base: './',
   plugins: [react(), envCompatible()],
+  resolve: {
+    dedupe: ['react', 'react-dom']
+  },
   server: {
     port: 3000
   },
