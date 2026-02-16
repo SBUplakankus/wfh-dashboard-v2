@@ -1,19 +1,19 @@
 const baseTheme = {
   colors: {
-    primary: '#6366f1',
-    secondary: '#8b5cf6',
-    tertiary: '#06b6d4',
-    background: { primary: '#0f172a', secondary: '#1e293b' },
-    text: { primary: '#f1f5f9', secondary: '#cbd5e1' },
-    border: '#475569'
+    primary: '#3b82f6',
+    secondary: '#60a5fa',
+    tertiary: '#93c5fd',
+    background: { primary: '#0f1419', secondary: '#111827' },
+    text: { primary: '#e2e8f0', secondary: '#94a3b8' },
+    border: '#334155'
   },
   gradients: {
-    header: { type: 'linear', angle: 135, stops: ['#6366f1', '#8b5cf6'] },
-    section: { type: 'linear', angle: 180, stops: ['#1e293b', '#334155'] },
-    background: { type: 'linear', angle: 135, stops: ['#0f172a', '#1a1f3a'] }
+    header: { type: 'linear', angle: 180, stops: ['#111827', '#0f172a'] },
+    section: { type: 'linear', angle: 180, stops: ['#111827', '#0f172a'] },
+    background: { type: 'linear', angle: 180, stops: ['#0f1419', '#0b1220'] }
   },
-  typography: { fontFamily: 'system-ui', baseFontSize: 14, headingMultiplier: 1.3, lineHeight: 1.5 },
-  layout: { sidebarWidth: 240, spacing: 16, borderRadius: 8, transitionSpeed: 'normal' }
+  typography: { fontFamily: 'system-ui', baseFontSize: 15, headingMultiplier: 1.2, lineHeight: 1.6 },
+  layout: { sidebarWidth: 200, spacing: 20, borderRadius: 8, transitionSpeed: 'normal' }
 };
 
 const makeTheme = (id, name, overrides = {}) => ({

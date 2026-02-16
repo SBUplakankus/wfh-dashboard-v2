@@ -1,20 +1,24 @@
 :root {
-  --color-primary: #6366f1;
-  --color-secondary: #8b5cf6;
-  --color-tertiary: #06b6d4;
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --text-primary: #f1f5f9;
-  --text-secondary: #cbd5e1;
-  --border-color: #475569;
-  --header-gradient: linear-gradient(135deg, #6366f1, #8b5cf6);
-  --section-gradient: linear-gradient(180deg, #1e293b, #334155);
-  --background-gradient: linear-gradient(135deg, #0f172a, #1a1f3a);
-  --sidebar-width: 240px;
-  --spacing: 16px;
+  --color-primary: #3b82f6;
+  --color-secondary: #60a5fa;
+  --color-tertiary: #93c5fd;
+  --bg-primary: #0f1419;
+  --bg-secondary: #111827;
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --border-color: #334155;
+  --header-gradient: linear-gradient(180deg, #111827, #0f172a);
+  --section-gradient: linear-gradient(180deg, #111827, #0f172a);
+  --background-gradient: linear-gradient(180deg, #0f1419, #0b1220);
+  --surface-strong: #0b1220;
+  --surface-subtle: #0f172a;
+  --today-accent: #4f46e5;
+  --today-surface: #0d1a2f;
+  --sidebar-width: 200px;
+  --spacing: 20px;
   --radius: 8px;
-  --base-font-size: 14px;
-  --line-height: 1.5;
+  --base-font-size: 15px;
+  --line-height: 1.6;
   --font-family: system-ui;
 }
 
@@ -25,7 +29,9 @@ body {
   font-size: var(--base-font-size);
   line-height: var(--line-height);
   color: var(--text-primary);
-  background: var(--background-gradient);
+  background: var(--bg-primary);
+  -webkit-font-smoothing: antialiased;
 }
 
 button,input { font: inherit; }
+p, h1, h2, h3, h4 { margin: 0; }
