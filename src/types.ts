@@ -70,3 +70,52 @@ export interface Toast {
   message: string;
   type: 'success' | 'error' | 'info';
 }
+
+// Phase 2: Deep Tool Integrations
+
+export interface DocFile {
+  name: string;
+  path: string;
+  isFolder: boolean;
+  size?: number;
+  modified?: Date;
+  children?: DocFile[];
+}
+
+export interface JoplinNotebook {
+  id: string;
+  name: string;
+  notes: JoplinNote[];
+}
+
+export interface JoplinNote {
+  id: string;
+  title: string;
+  content: string;
+  created: Date;
+  modified: Date;
+  tags: string[];
+  notebookId: string;
+}
+
+export interface KanriTask {
+  id: string;
+  title: string;
+  description?: string;
+  column: string; // "To Do", "In Progress", "Done"
+  priority: 'low' | 'medium' | 'high';
+  dueDate?: Date;
+  tags?: string[];
+}
+
+export interface KanriBoard {
+  name: string;
+  columns: string[];
+  tasks: KanriTask[];
+}
+
+export interface ToolIntegrationConfig {
+  mkdocsPath?: string;
+  joplinDataPath?: string;
+  kanriDataPath?: string;
+}

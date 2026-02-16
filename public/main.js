@@ -81,6 +81,80 @@ ipcMain.handle('write-file', async (event, filePath, data) => {
   }
 });
 
+ipcMain.handle('read-directory', async (event, dirPath) => {
+  try {
+    const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+    const files = entries.map(entry => ({
+      name: entry.name,
+      path: path.join(dirPath, entry.name),
+      isFolder: entry.isDirectory(),
+      size: entry.isFile() ? fs.statSync(path.join(dirPath, entry.name)).size : undefined,
+      modified: fs.statSync(path.join(dirPath, entry.name)).mtime,
+    }));
+    return { success: true, data: files };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('read-directory-recursive', async (event, dirPath, maxDepth = 3) => {
+  const readDir = (currentPath, depth = 0) => {
+    if (depth > maxDepth) return [];
+    
+    try {
+      const entries = fs.readdirSync(currentPath, { withFileTypes: true });
+      return entries.map(entry => {
+        const fullPath = path.join(currentPath, entry.name);
+        const stats = fs.statSync(fullPath);
+        
+        return {
+          name: entry.name,
+          path: fullPath,
+          isFolder: entry.isDirectory(),
+          size: entry.isFile() ? stats.size : undefined,
+          modified: stats.mtime,
+          children: entry.isDirectory() ? readDir(fullPath, depth + 1) : undefined,
+        };
+      });
+    } catch (error) {
+      return [];
+    }
+  };
+  
+  try {
+    const data = readDir(dirPath);
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('delete-file', async (event, filePath) => {
+  try {
+    fs.unlinkSync(filePath);
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('create-directory', async (event, dirPath) => {
+  try {
+    fs.mkdirSync(dirPath, { recursive: true });
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('file-exists', async (event, filePath) => {
+  try {
+    return { success: true, exists: fs.existsSync(filePath) };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
 ipcMain.handle('save-config', async (event, config) => {
   const configPath = path.join(app.getPath('userData'), 'config.json');
   try {
