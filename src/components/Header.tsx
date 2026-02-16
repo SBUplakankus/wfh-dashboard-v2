@@ -34,18 +34,10 @@ const Header: React.FC<HeaderProps> = ({ activeView, project, onOpenSettings, th
         {/* Divider */}
         <div className="h-3 w-px bg-white/10" />
         
-        {/* Project name and status - more compact */}
-        <div className="flex items-center gap-2">
-          <h1 className="text-[13px] font-semibold" style={{ color: 'var(--text-primary)' }}>
-            {project.name}
-          </h1>
-          <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-white/[0.03]">
-            <div className={`w-1 h-1 rounded-full ${getStatusColor(project.status)}`} />
-            <span className="text-[9px] font-medium uppercase tracking-wide" style={{ color: 'var(--text-secondary)' }}>
-              {project.status}
-            </span>
-          </div>
-        </div>
+        {/* Project name - clean, no status indicator */}
+        <h1 className="text-[13px] font-semibold" style={{ color: 'var(--text-primary)' }}>
+          {project.name}
+        </h1>
       </div>
       
       <div className="flex items-center gap-3">

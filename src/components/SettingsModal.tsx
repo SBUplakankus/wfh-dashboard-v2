@@ -291,6 +291,23 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                             <ColorInput label="Body Text" themeKey="textSecondary" />
                           </div>
                         </div>
+                        <div className="col-span-2 space-y-4 mt-4">
+                          <h4 className="text-[10px] font-bold text-neutral-600 uppercase tracking-widest flex items-center gap-2">
+                            <SlidersHorizontal className="w-3 h-3" /> Border Radius
+                          </h4>
+                          <div className="flex items-center gap-4">
+                            <input
+                              type="range"
+                              min="0"
+                              max="24"
+                              step="2"
+                              value={parseInt(theme.borderRadius)}
+                              onChange={(e) => updateTheme('borderRadius', `${e.target.value}px`)}
+                              className="flex-1 h-2 bg-white/5 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-500"
+                            />
+                            <span className="text-[11px] font-mono text-neutral-400 w-12">{theme.borderRadius}</span>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </section>

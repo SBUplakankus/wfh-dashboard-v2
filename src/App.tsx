@@ -34,7 +34,7 @@ const App: React.FC = () => {
     bgType: 'solid',
     bgGradientColor: '#111827',
     bgGradientAngle: 135,
-    borderRadius: '8px',
+    borderRadius: '12px',
     spacingBase: 8,
     glassEnabled: true,
     glassIntensity: 12,
