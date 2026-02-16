@@ -8,7 +8,6 @@ import DashboardView from './views/DashboardView';
 import CalendarView from './components/CalendarView';
 import WorkWeekView from './components/WorkWeekView';
 import ToolsView from './views/ToolsView';
-import DesignSystemView from './views/DesignSystemView';
 import IntegrationsView from './views/IntegrationsView';
 import AnalyticsView from './views/AnalyticsView';
 import SettingsModal from './components/SettingsModal';
@@ -142,7 +141,6 @@ const App: React.FC = () => {
       case 'Calendar': return <div className="p-10 max-w-[1200px] mx-auto"><CalendarView theme={theme} /></div>;
       case 'WorkWeek': return <div className="p-8 h-full"><WorkWeekView theme={theme} meetings={mockMeetings} /></div>;
       case 'Tools': return <ToolsView theme={theme} />;
-      case 'DesignSystem': return <DesignSystemView theme={theme} />;
       case 'Integrations': return <IntegrationsView />;
       case 'Analytics': return <AnalyticsView currentProjectId={activeProjectId} />;
       default: return <DashboardView theme={theme} modularity={modularity} meetings={mockMeetings} currentProject={activeProject} onNavigateToView={setActiveView} onOpenCreateTask={() => setIsCreateTaskOpen(true)} />;
