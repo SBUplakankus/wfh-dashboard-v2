@@ -17,7 +17,7 @@ const ProjectManager = () => {
       color: '#a855f7',
       type: 'custom',
       features: { calendar: true, kanri: true, joplin: true, mkdocs: true, marktext: true, customLinks: true },
-      paths: {},
+      paths: { mkdocsPath: '', calendarFile: '', kanriPath: '', joplinPath: '', marktextPath: '', joplinDataFile: '', kanriDataFile: '' },
       calendarSettings: { hideAllDayEvents: false, hidePastMeetings: false, timeZone: '' },
       links: [],
       theme: null,

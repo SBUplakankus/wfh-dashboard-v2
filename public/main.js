@@ -5,6 +5,42 @@ const { spawn } = require('child_process');
 const isDev = require('electron-is-dev');
 
 const configPath = () => path.join(app.getPath('userData'), 'dashboard-config.json');
+const isMarkdown = (value) => value.toLowerCase().endsWith('.md');
+
+const buildDirectoryTree = async (dirPath, depth = 0, maxDepth = 4) => {
+  if (!dirPath || depth > maxDepth) return [];
+  const entries = await fs.readdir(dirPath, { withFileTypes: true });
+  const nodes = await Promise.all(
+    entries
+      .filter((entry) => !entry.name.startsWith('.'))
+      .map(async (entry) => {
+        const fullPath = path.join(dirPath, entry.name);
+        if (entry.isDirectory()) {
+          return {
+            type: 'folder',
+            name: entry.name,
+            path: fullPath,
+            children: await buildDirectoryTree(fullPath, depth + 1, maxDepth)
+          };
+        }
+
+        if (!isMarkdown(entry.name)) return null;
+        const stats = await fs.stat(fullPath);
+        return {
+          type: 'file',
+          name: entry.name,
+          path: fullPath,
+          modifiedAt: stats.mtimeMs,
+          size: stats.size
+        };
+      })
+  );
+
+  return nodes.filter(Boolean).sort((a, b) => {
+    if (a.type !== b.type) return a.type === 'folder' ? -1 : 1;
+    return a.name.localeCompare(b.name);
+  });
+};
 
 const createWindow = () => {
   const win = new BrowserWindow({
@@ -35,6 +71,18 @@ app.whenReady().then(() => {
     }
   });
 
+  ipcMain.handle('open-app-with-file', async (_, payload) => {
+    const appPath = payload?.appPath;
+    const filePath = payload?.filePath;
+    if (!appPath || !filePath) return { ok: false, error: 'Missing app path or file path' };
+    try {
+      spawn(appPath, [filePath], { detached: true, stdio: 'ignore' }).unref();
+      return { ok: true };
+    } catch (error) {
+      return { ok: false, error: error.message };
+    }
+  });
+
   ipcMain.handle('open-file', async (_, filePath) => {
     if (!filePath) return { ok: false, error: 'Missing file path' };
     try {
@@ -51,6 +99,27 @@ app.whenReady().then(() => {
       return await fs.readFile(filePath, 'utf8');
     } catch {
       return '';
+    }
+  });
+
+  ipcMain.handle('write-file', async (_, payload) => {
+    const filePath = payload?.path;
+    if (!filePath) return { ok: false, error: 'Missing file path' };
+    try {
+      await fs.mkdir(path.dirname(filePath), { recursive: true });
+      await fs.writeFile(filePath, payload?.content || '', 'utf8');
+      return { ok: true };
+    } catch (error) {
+      return { ok: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle('list-directory', async (_, dirPath) => {
+    if (!dirPath) return [];
+    try {
+      return await buildDirectoryTree(dirPath, 0, 5);
+    } catch {
+      return [];
     }
   });
 

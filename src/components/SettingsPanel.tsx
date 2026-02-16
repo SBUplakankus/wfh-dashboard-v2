@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import ProjectManager from './settings/ProjectManager';
 import ThemeCustomizer from './settings/ThemeCustomizer';
 import CalendarSettings from './settings/CalendarSettings';
+import ToolIntegrationsSettings from './settings/ToolIntegrationsSettings';
 
 const tabs = ['Projects', 'Theme', 'Calendar', 'Tools'] as const;
 
@@ -67,7 +68,7 @@ const SettingsPanel = ({ open, onClose }: SettingsPanelProps) => {
                   {activeTab === 'Projects' ? <ProjectManager /> : null}
                   {activeTab === 'Theme' ? <ThemeCustomizer /> : null}
                   {activeTab === 'Calendar' ? <CalendarSettings /> : null}
-                  {activeTab === 'Tools' ? <p className="text-sm text-md3-on-surface-variant">Tool paths are configured per-project in this MVP.</p> : null}
+                  {activeTab === 'Tools' ? <ToolIntegrationsSettings /> : null}
                 </motion.div>
               </div>
             </div>
