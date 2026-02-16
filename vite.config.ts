@@ -3,6 +3,7 @@ import envCompatible from 'vite-plugin-env-compatible';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
+  base: './',
   plugins: [react(), envCompatible()],
   server: {
     port: 3000
