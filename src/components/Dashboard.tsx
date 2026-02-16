@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { motion } from 'framer-motion';
 import { useProjectContext } from '../context/ProjectContext';
 import Header from './Header';
 import Sidebar from './Sidebar';
@@ -8,7 +9,21 @@ import CustomLinksSection from './sections/CustomLinksSection';
 import { readFile } from '../utils/ipc';
 import { parseICS } from '../utils/calendarParser';
 
-const sampleEvents = [
+type DashboardProps = {
+  onOpenSettings: () => void;
+};
+
+type CalendarEvent = {
+  id: string;
+  title: string;
+  start: Date | string;
+  end: Date | string;
+  allDay?: boolean;
+  url?: string;
+  calendarName?: string;
+};
+
+const sampleEvents: CalendarEvent[] = [
   {
     id: '1',
     title: 'Daily Standup',
@@ -29,10 +44,10 @@ const sampleEvents = [
   }
 ];
 
-const Dashboard = ({ onOpenSettings }) => {
-  const { currentProject } = useProjectContext();
+const Dashboard = ({ onOpenSettings }: DashboardProps) => {
+  const { currentProject } = useProjectContext() as any;
   const features = currentProject?.features || {};
-  const [events, setEvents] = useState(sampleEvents);
+  const [events, setEvents] = useState<CalendarEvent[]>(sampleEvents);
   const calendarSettings = currentProject?.calendarSettings || { hideAllDayEvents: false, hidePastMeetings: false, timeZone: '' };
 
   useEffect(() => {
@@ -42,7 +57,7 @@ const Dashboard = ({ onOpenSettings }) => {
       return;
     }
     readFile(calendarFile)
-      .then((content) => setEvents(parseICS(content)))
+      .then((content: string) => setEvents(parseICS(content)))
       .catch(() => setEvents(sampleEvents));
   }, [currentProject?.paths?.calendarFile]);
 
@@ -56,14 +71,19 @@ const Dashboard = ({ onOpenSettings }) => {
   }, [events, calendarSettings.hideAllDayEvents, calendarSettings.hidePastMeetings]);
 
   return (
-    <div className="layout">
+    <div className="grid min-h-screen grid-cols-1 gap-6 p-6 lg:grid-cols-[220px_1fr]">
       <Sidebar onOpenSettings={onOpenSettings} />
-      <main className="content stack">
+      <motion.main
+        className="space-y-6"
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.28, ease: 'easeOut' }}
+      >
         <Header title={currentProject?.name || 'Dashboard'} onOpenSettings={onOpenSettings} />
         {features.calendar ? <CalendarSection events={filteredEvents} calendarSettings={calendarSettings} /> : null}
         {features.kanri || features.joplin || features.mkdocs || features.marktext ? <ToolsSection project={currentProject} /> : null}
         {features.customLinks ? <CustomLinksSection links={currentProject?.links} /> : null}
-      </main>
+      </motion.main>
     </div>
   );
 };
