@@ -1,5 +1,6 @@
 import React from 'react';
 import { useProjectContext } from '../context/ProjectContext';
+import IconGlyph from './IconGlyph';
 
 const Sidebar = ({ onOpenSettings }) => {
   const { projects, currentProject, setCurrentProjectId } = useProjectContext();
@@ -15,7 +16,7 @@ const Sidebar = ({ onOpenSettings }) => {
             onClick={() => setCurrentProjectId(project.id)}
             type="button"
           >
-            <span>{project.icon}</span> {project.name}
+            <span className="row"><IconGlyph name={project.icon} type={project.type} /> {project.name}</span>
           </button>
         ))}
       </div>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useProjectContext } from '../../context/ProjectContext';
+import IconGlyph from '../IconGlyph';
 
 const ProjectManager = () => {
   const { projects, addProject, removeProject } = useProjectContext();
@@ -12,7 +13,7 @@ const ProjectManager = () => {
       id,
       name,
       description: 'Custom project',
-      icon: '🧩',
+      icon: 'puzzle',
       color: '#a855f7',
       type: 'custom',
       features: { calendar: true, kanri: true, joplin: true, mkdocs: true, marktext: true, customLinks: true },
@@ -37,7 +38,7 @@ const ProjectManager = () => {
       </div>
       {projects.map((project) => (
         <div key={project.id} className="row card-inline">
-          <span>{project.icon} {project.name}</span>
+          <span className="row"><IconGlyph name={project.icon} type={project.type} /> {project.name}</span>
           {!['game-dev', 'work', 'learning'].includes(project.id) ? (
             <button className="btn danger" type="button" onClick={() => removeProject(project.id)}>
               Delete

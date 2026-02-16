@@ -25,12 +25,12 @@ const formatWithZone = (date, options, timeZone) => {
 
 const formatTime = (date, timeZone) => formatWithZone(date, { hour: 'numeric', minute: '2-digit' }, timeZone);
 
-const formatDayHeader = (date, timeZone) => formatWithZone(date, { weekday: 'short', month: 'short', day: 'numeric' }, timeZone);
+const formatDayHeader = (date) => formatWithZone(date, { weekday: 'short', month: 'short', day: 'numeric' });
 
-const formatWeekRange = (startDate, timeZone) => {
+const formatWeekRange = (startDate) => {
   const endDate = new Date(startDate);
   endDate.setDate(startDate.getDate() + 4);
-  return `Week of ${formatWithZone(startDate, { month: 'short', day: 'numeric' }, timeZone)}-${formatWithZone(endDate, { month: 'short', day: 'numeric' }, timeZone)}, ${startDate.getFullYear()}`;
+  return `Week of ${formatWithZone(startDate, { month: 'short', day: 'numeric' })}-${formatWithZone(endDate, { month: 'short', day: 'numeric' })}, ${startDate.getFullYear()}`;
 };
 
 const durationLabel = (start, end) => {
@@ -85,14 +85,14 @@ const WorkWeekMeetingsSection = ({ events, timeZone }) => {
           </button>
         </div>
       </div>
-      <p className="muted">{formatWeekRange(weekStart, timeZone)}</p>
+      <p className="muted">{formatWeekRange(weekStart)}</p>
       <div className="work-week-grid">
         {weekdays.map((day) => {
           const meetings = meetingsByDay[day.toDateString()] || [];
           const isToday = isSameLocalDay(day, today);
           return (
             <article key={day.toISOString()} className={`day-column ${isToday ? 'today' : ''}`}>
-              <h4>{formatDayHeader(day, timeZone)}</h4>
+              <h4>{formatDayHeader(day)}</h4>
               <div className="day-meetings">
                 {meetings.length === 0 ? <p className="muted">Clear</p> : null}
                 {meetings.map((meeting) => {
