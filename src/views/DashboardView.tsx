@@ -17,9 +17,11 @@ interface DashboardViewProps {
   modularity: ModularityConfig;
   meetings: Meeting[];
   currentProject?: Project;
+  onNavigateToView?: (view: string) => void;
+  onOpenCreateTask?: () => void;
 }
 
-const DashboardView: React.FC<DashboardViewProps> = ({ theme, modularity, meetings, currentProject }) => {
+const DashboardView: React.FC<DashboardViewProps> = ({ theme, modularity, meetings, currentProject, onNavigateToView, onOpenCreateTask }) => {
   const glassStyle = theme.glassEnabled ? 'glass shadow-xl' : '';
   
   // Get project integrations (default to showing nothing if not specified)
@@ -105,8 +107,12 @@ const DashboardView: React.FC<DashboardViewProps> = ({ theme, modularity, meetin
             {/* Show upcoming meeting widget only if project has calendar integration */}
             {integrations.hasCalendar && modularity.showUpcomingMeeting && upcomingMeeting && (
               <div 
-                className={`p-6 border transition-all duration-300 hover:-translate-y-1 hover:border-blue-500/50 cursor-default ${glassStyle}`} 
-                style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border)', borderRadius: 'var(--radius)' }}
+                className={`p-6 border transition-all duration-300 cursor-default ${glassStyle}`} 
+                style={{ 
+                  backgroundColor: 'var(--card-bg)', 
+                  borderColor: 'var(--border)', 
+                  borderRadius: 'var(--radius)',
+                }}
               >
                 <div className="flex items-center justify-between mb-6">
                   <div className="p-2 rounded-lg" style={{ backgroundColor: 'color-mix(in srgb, var(--accent) 10%, transparent)' }}>
@@ -118,6 +124,11 @@ const DashboardView: React.FC<DashboardViewProps> = ({ theme, modularity, meetin
                 <button 
                   className="w-full py-2.5 text-white text-[12px] font-bold rounded-lg flex items-center justify-center gap-2 transition-transform active:scale-95"
                   style={{ backgroundColor: 'var(--accent)' }}
+                  onClick={() => {
+                    if (upcomingMeeting.joinUrl) {
+                      window.open(upcomingMeeting.joinUrl, '_blank');
+                    }
+                  }}
                 >
                   <Video className="w-3.5 h-3.5" /> Join Meeting
                 </button>
@@ -126,17 +137,29 @@ const DashboardView: React.FC<DashboardViewProps> = ({ theme, modularity, meetin
 
             {/* Show Kanri stats only if project has kanban integration */}
             {integrations.hasKanban && (
-              <KanriStatsWidget tasks={mockKanriTasks} glassStyle={glassStyle} />
+              <KanriStatsWidget 
+                tasks={mockKanriTasks} 
+                glassStyle={glassStyle}
+                onNavigateToTasks={() => onNavigateToView?.('Integrations')}
+              />
             )}
             
             {/* Show Joplin stats only if project has notes integration */}
             {integrations.hasNotes && (
-              <JoplinStatsWidget notebooks={mockJoplinNotebooks} glassStyle={glassStyle} />
+              <JoplinStatsWidget 
+                notebooks={mockJoplinNotebooks} 
+                glassStyle={glassStyle}
+                onNavigateToNotes={() => onNavigateToView?.('Integrations')}
+              />
             )}
             
             {/* Show MkDocs stats only if project has docs integration */}
             {integrations.hasDocs && (
-              <MkDocsStatsWidget files={mockDocFiles} glassStyle={glassStyle} />
+              <MkDocsStatsWidget 
+                files={mockDocFiles} 
+                glassStyle={glassStyle}
+                onNavigateToDocs={() => onNavigateToView?.('Integrations')}
+              />
             )}
           </div>
 
@@ -160,6 +183,12 @@ const DashboardView: React.FC<DashboardViewProps> = ({ theme, modularity, meetin
                     </div>
                     <button
                       className="p-2 text-neutral-500 hover:text-white opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0"
+                      onClick={() => {
+                        if (m.joinUrl) {
+                          window.open(m.joinUrl, '_blank');
+                        }
+                      }}
+                      title="Join meeting"
                     >
                       <ArrowUpRight className="w-4 h-4" />
                     </button>
@@ -177,6 +206,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({ theme, modularity, meetin
                <div className="space-y-2">
                   <button 
                     className="w-full flex items-center justify-between p-3.5 rounded-lg bg-white/[0.02] border border-white/[0.05] hover:bg-white/[0.05] hover:translate-x-1 text-[13px] font-medium transition-all group active:scale-[0.98]"
+                    onClick={onOpenCreateTask}
                   >
                     <div className="flex items-center gap-3">
                       <Plus className="w-4 h-4" style={{ color: 'var(--accent)' }} />

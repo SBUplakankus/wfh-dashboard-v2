@@ -15,6 +15,7 @@ import SettingsModal from './components/SettingsModal';
 import ToastSystem from './components/ToastSystem';
 import GlobalSearch from './components/GlobalSearch';
 import KeyboardShortcutsHelp from './components/KeyboardShortcutsHelp';
+import CreateTaskModal from './components/integrations/CreateTaskModal';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus } from 'lucide-react';
 
@@ -25,6 +26,7 @@ const App: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isShortcutsHelpOpen, setIsShortcutsHelpOpen] = useState(false);
+  const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
   
   const [theme, setTheme] = useState<ThemeConfig>({
@@ -125,20 +127,25 @@ const App: React.FC = () => {
            </div>
            <h2 className="text-xl font-bold mb-2">No projects found</h2>
            <p className="text-neutral-500 text-sm max-w-xs mb-6">Create your first project to start managing your game development workflow.</p>
-           <button className="px-6 py-2 bg-blue-600 text-white font-bold rounded-xl active:scale-95 transition-all shadow-xl shadow-blue-500/20">Create Project</button>
+           <button 
+             className="px-6 py-2 bg-blue-600 text-white font-bold rounded-xl active:scale-95 transition-all shadow-xl shadow-blue-500/20"
+             onClick={() => setIsSettingsOpen(true)}
+           >
+             Create Project
+           </button>
         </div>
       );
     }
 
     switch(activeView) {
-      case 'Dashboard': return <DashboardView theme={theme} modularity={modularity} meetings={mockMeetings} currentProject={activeProject} />;
+      case 'Dashboard': return <DashboardView theme={theme} modularity={modularity} meetings={mockMeetings} currentProject={activeProject} onNavigateToView={setActiveView} onOpenCreateTask={() => setIsCreateTaskOpen(true)} />;
       case 'Calendar': return <div className="p-10 max-w-[1200px] mx-auto"><CalendarView theme={theme} /></div>;
       case 'WorkWeek': return <div className="p-8 h-full"><WorkWeekView theme={theme} meetings={mockMeetings} /></div>;
       case 'Tools': return <ToolsView theme={theme} />;
       case 'DesignSystem': return <DesignSystemView theme={theme} />;
       case 'Integrations': return <IntegrationsView />;
       case 'Analytics': return <AnalyticsView currentProjectId={activeProjectId} />;
-      default: return <DashboardView theme={theme} modularity={modularity} meetings={mockMeetings} currentProject={activeProject} />;
+      default: return <DashboardView theme={theme} modularity={modularity} meetings={mockMeetings} currentProject={activeProject} onNavigateToView={setActiveView} onOpenCreateTask={() => setIsCreateTaskOpen(true)} />;
     }
   };
 
@@ -208,6 +215,19 @@ const App: React.FC = () => {
         isOpen={isShortcutsHelpOpen}
         onClose={() => setIsShortcutsHelpOpen(false)}
       />
+
+      <AnimatePresence>
+        {isCreateTaskOpen && (
+          <CreateTaskModal
+            isOpen={isCreateTaskOpen}
+            onClose={() => setIsCreateTaskOpen(false)}
+            onTaskCreated={() => {
+              setIsCreateTaskOpen(false);
+              addToast('Task created successfully', 'success');
+            }}
+          />
+        )}
+      </AnimatePresence>
 
       <ToastSystem toasts={toasts} onRemove={removeToast} />
     </div>

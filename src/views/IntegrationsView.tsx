@@ -126,7 +126,10 @@ const IntegrationsView: React.FC = () => {
 
         {/* Footer */}
         <div className="p-3 border-t" style={{ borderColor: 'var(--border)' }}>
-          <button className="w-full py-2 px-3 bg-neutral-800 hover:bg-neutral-700 rounded-lg text-[11px] font-medium transition-colors flex items-center justify-center gap-2">
+          <button 
+            className="w-full py-2 px-3 bg-neutral-800 hover:bg-neutral-700 rounded-lg text-[11px] font-medium transition-colors flex items-center justify-center gap-2"
+            onClick={() => console.log('Configure integration paths - would open settings')}
+          >
             <Settings className="w-3.5 h-3.5" />
             Configure Paths
           </button>

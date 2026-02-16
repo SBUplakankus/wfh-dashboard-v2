@@ -71,6 +71,14 @@ export interface ModularityConfig {
   showSchedule: boolean;
 }
 
+export interface AnalyticsConfig {
+  showBurndown: boolean;
+  showVelocity: boolean;
+  showTaskDistribution: boolean;
+  showCycleTime: boolean;
+  showDailyActivity: boolean;
+}
+
 export type ViewType = 'Dashboard' | 'Calendar' | 'WorkWeek' | 'Tools' | 'Settings' | 'DesignSystem' | 'Integrations' | 'Analytics';
 export type TabType = 'Projects' | 'Theme' | 'Modularity' | 'Tools';
 

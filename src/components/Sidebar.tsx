@@ -120,7 +120,13 @@ const Sidebar: React.FC<SidebarProps> = ({
               </button>
             ))}
             <div className="border-t border-white/5 my-1" />
-            <button className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-[12px] hover:bg-white/[0.04] text-neutral-500 hover:text-white transition-colors outline-none">
+            <button 
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-[12px] hover:bg-white/[0.04] text-neutral-500 hover:text-white transition-colors outline-none"
+              onClick={() => {
+                setIsProjectDropdownOpen(false);
+                onOpenSettings();
+              }}
+            >
               <Plus className="w-3.5 h-3.5" />
               <span>New Project</span>
             </button>

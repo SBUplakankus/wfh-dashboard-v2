@@ -29,10 +29,23 @@ const ToolsView: React.FC<ToolsViewProps> = ({ theme }) => {
   ];
 
   const customLinks = [
-    { id: 'l1', label: 'Production Logs', url: '#', icon: Search },
-    { id: 'l2', label: 'Sentry Issues', url: '#', icon: Settings2 },
-    { id: 'l3', label: 'AWS Console', url: '#', icon: ExternalLink },
+    { id: 'l1', label: 'Production Logs', url: 'https://example.com/logs', icon: Search },
+    { id: 'l2', label: 'Sentry Issues', url: 'https://sentry.io', icon: Settings2 },
+    { id: 'l3', label: 'AWS Console', url: 'https://console.aws.amazon.com', icon: ExternalLink },
   ];
+
+  const handleLaunchTool = (toolName: string) => {
+    // In a real Electron app, this would use IPC to launch the tool
+    if (window.electronAPI) {
+      (window as any).electronAPI.openApp?.(toolName.toLowerCase());
+    } else {
+      console.log(`Launching ${toolName}...`);
+    }
+  };
+
+  const handleOpenLink = (url: string) => {
+    window.open(url, '_blank');
+  };
 
   return (
     <div className="p-10 max-w-[1400px] mx-auto animate-in fade-in duration-500">
@@ -41,7 +54,10 @@ const ToolsView: React.FC<ToolsViewProps> = ({ theme }) => {
           <h1 className="text-2xl font-bold tracking-tight mb-2">Launcher</h1>
           <p className="text-sm text-neutral-500">One-click access to your specialized toolset and resources.</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-white/10 transition-all active:scale-95">
+        <button 
+          className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-white/10 transition-all active:scale-95"
+          onClick={() => console.log('Configure tool paths - would open settings modal')}
+        >
           <Plus className="w-3.5 h-3.5" /> Configure Path
         </button>
       </header>
@@ -60,7 +76,11 @@ const ToolsView: React.FC<ToolsViewProps> = ({ theme }) => {
                 <div className={`p-3 bg-neutral-900 rounded-lg border border-white/5 group-hover:border-white/10 transition-all ${tool.color}`}>
                   <tool.icon className="w-6 h-6" />
                 </div>
-                <button className="p-2 opacity-0 group-hover:opacity-100 transition-opacity hover:text-white text-neutral-500">
+                <button 
+                  className="p-2 opacity-0 group-hover:opacity-100 transition-opacity hover:text-white text-neutral-500"
+                  onClick={() => handleOpenLink(`https://${tool.name.toLowerCase()}.com`)}
+                  title={`Visit ${tool.name} website`}
+                >
                   <ExternalLink className="w-4 h-4" />
                 </button>
               </div>
@@ -68,7 +88,10 @@ const ToolsView: React.FC<ToolsViewProps> = ({ theme }) => {
               <p className="text-xs text-neutral-500 leading-relaxed mb-auto line-clamp-2">
                 {tool.description}
               </p>
-              <button className="mt-4 w-full py-2 bg-white/5 border border-white/5 rounded-lg text-[11px] font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all hover:bg-white/10 active:scale-[0.98]">
+              <button 
+                className="mt-4 w-full py-2 bg-white/5 border border-white/5 rounded-lg text-[11px] font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all hover:bg-white/10 active:scale-[0.98]"
+                onClick={() => handleLaunchTool(tool.name)}
+              >
                 Launch Tool
               </button>
             </div>
@@ -81,7 +104,12 @@ const ToolsView: React.FC<ToolsViewProps> = ({ theme }) => {
           <h2 className="text-[11px] font-bold text-neutral-500 uppercase tracking-[0.2em] flex items-center gap-2">
             <LinkIcon className="w-3.5 h-3.5" /> Project Specific Links
           </h2>
-          <button className="text-[11px] text-blue-500 hover:text-blue-400 font-bold tracking-wider">ADD NEW LINK</button>
+          <button 
+            className="text-[11px] text-blue-500 hover:text-blue-400 font-bold tracking-wider"
+            onClick={() => console.log('Add new link - would open dialog')}
+          >
+            ADD NEW LINK
+          </button>
         </div>
         
         {customLinks.length > 0 ? (
@@ -90,6 +118,7 @@ const ToolsView: React.FC<ToolsViewProps> = ({ theme }) => {
               <button 
                 key={link.id}
                 className="flex items-center gap-3 p-4 rounded-xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/20 transition-all group text-left"
+                onClick={() => handleOpenLink(link.url)}
               >
                 <div className="p-2 rounded-lg bg-white/5 text-neutral-400 group-hover:text-white transition-colors">
                   <link.icon className="w-4 h-4" />
