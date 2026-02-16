@@ -6,20 +6,21 @@
   padding: 7px 12px;
   cursor: pointer;
   text-decoration: none;
-  transition: border-color 0.18s ease, background-color 0.18s ease, color 0.18s ease;
+  transition: border-color 0.18s ease, background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
 }
 
-.btn:hover { background: #171d2a; border-color: #313848; }
+.btn:hover { background: #171d2a; border-color: #313848; transform: translateY(-1px); }
 .btn.active { background: rgba(79, 124, 255, 0.15); border-color: var(--color-primary); color: var(--text-primary); }
 .btn.danger { color: #fecaca; border-color: #7f1d1d; background: rgba(127, 29, 29, 0.14); }
 .btn:focus-visible { outline: 2px solid rgba(79, 124, 255, 0.45); outline-offset: 1px; }
 .icon-btn { width: 34px; height: 34px; padding: 0; display: grid; place-items: center; }
 .project-list { display: grid; gap: 8px; margin-bottom: var(--spacing); }
 .project-btn { text-align: left; justify-content: flex-start; width: 100%; border-left: 2px solid transparent; background: transparent; }
-.project-btn.active { border-left-color: var(--color-primary); background: rgba(79, 124, 255, 0.08); }
+.project-btn.active { border-left-color: var(--color-primary); background: rgba(79, 124, 255, 0.08); color: #f3f6ff; }
 .tools-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
 .meeting-group { display: grid; gap: 10px; }
 .meeting-card { display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color); border-radius: 6px; padding: 12px; gap: 12px; background: #131720; }
+.meeting-card:hover { border-color: #313848; }
 .chip-list { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip { border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 999px; font-size: 0.82rem; color: var(--text-secondary); background: #131720; }
 .overlay { position: fixed; inset: 0; background: rgba(2, 6, 23, 0.72); display: grid; place-items: center; padding: 16px; }
