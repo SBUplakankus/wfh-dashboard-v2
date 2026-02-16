@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { DocFile } from '../../types';
-import { Folder, File, ChevronRight, ChevronDown, FileText, Clock, HardDrive, ExternalLink } from 'lucide-react';
+import { Folder, File, ChevronRight, ChevronDown, FileText, Clock, HardDrive, ExternalLink, Plus } from 'lucide-react';
+import CreateFileModal from './CreateFileModal';
 
 interface MkDocsFileBrowserProps {
   docsPath: string;
@@ -12,6 +13,7 @@ const MkDocsFileBrowser: React.FC<MkDocsFileBrowserProps> = ({ docsPath, onFileC
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   useEffect(() => {
     loadFiles();
@@ -173,36 +175,60 @@ const MkDocsFileBrowser: React.FC<MkDocsFileBrowserProps> = ({ docsPath, onFileC
   }
 
   return (
-    <div className="space-y-1">
-      <div className="flex items-center justify-between px-3 py-2 mb-2">
-        <div className="flex items-center gap-2 text-[11px]" style={{ color: 'var(--text-secondary)' }}>
-          <HardDrive className="w-3.5 h-3.5" />
-          <span>{files.length} items</span>
+    <>
+      <div className="space-y-1">
+        <div className="flex items-center justify-between px-3 py-2 mb-2">
+          <div className="flex items-center gap-2 text-[11px]" style={{ color: 'var(--text-secondary)' }}>
+            <HardDrive className="w-3.5 h-3.5" />
+            <span>{files.length} items</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="p-1 hover:bg-white/[0.04] rounded transition-colors"
+              title="Create File"
+            >
+              <Plus className="w-3.5 h-3.5" style={{ color: 'var(--text-secondary)' }} />
+            </button>
+            <button
+              onClick={loadFiles}
+              className="p-1 hover:bg-white/[0.04] rounded transition-colors"
+              title="Refresh"
+            >
+              <Clock className="w-3.5 h-3.5" style={{ color: 'var(--text-secondary)' }} />
+            </button>
+          </div>
         </div>
-        <button
-          onClick={loadFiles}
-          className="p-1 hover:bg-white/[0.04] rounded transition-colors"
-          title="Refresh"
-        >
-          <Clock className="w-3.5 h-3.5" style={{ color: 'var(--text-secondary)' }} />
-        </button>
+
+        {files.length === 0 ? (
+          <div className="p-6 text-center" style={{ color: 'var(--text-secondary)' }}>
+            <Folder className="w-12 h-12 mx-auto mb-3 opacity-30" />
+            <p className="text-[13px]">No files found</p>
+          </div>
+        ) : (
+          files
+            .sort((a, b) => {
+              if (a.isFolder && !b.isFolder) return -1;
+              if (!a.isFolder && b.isFolder) return 1;
+              return a.name.localeCompare(b.name);
+            })
+            .map(file => renderFile(file))
+        )}
       </div>
 
-      {files.length === 0 ? (
-        <div className="p-6 text-center" style={{ color: 'var(--text-secondary)' }}>
-          <Folder className="w-12 h-12 mx-auto mb-3 opacity-30" />
-          <p className="text-[13px]">No files found</p>
-        </div>
-      ) : (
-        files
-          .sort((a, b) => {
-            if (a.isFolder && !b.isFolder) return -1;
-            if (!a.isFolder && b.isFolder) return 1;
-            return a.name.localeCompare(b.name);
-          })
-          .map(file => renderFile(file))
-      )}
-    </div>
+      <CreateFileModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        basePath={docsPath}
+        onFileCreated={(path) => {
+          loadFiles();
+          // Optionally open the file
+          if (window.dashboardAPI) {
+            window.dashboardAPI.openFile(path);
+          }
+        }}
+      />
+    </>
   );
 };
 
