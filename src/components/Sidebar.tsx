@@ -13,6 +13,7 @@ import {
   Plus,
   Zap,
   Layers,
+  TrendingUp,
   LucideIcon
 } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
@@ -49,6 +50,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const navItems: { id: ViewType; label: string; icon: any }[] = [
     { id: 'Dashboard', label: 'Overview', icon: LayoutDashboard },
+    { id: 'Analytics', label: 'Analytics', icon: TrendingUp },
     { id: 'Calendar', label: 'Calendar', icon: Calendar },
     { id: 'WorkWeek', label: 'Work Week', icon: Clock },
     { id: 'Tools', label: 'Launcher', icon: Briefcase },

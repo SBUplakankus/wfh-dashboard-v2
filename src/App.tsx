@@ -10,6 +10,7 @@ import WorkWeekView from './components/WorkWeekView';
 import ToolsView from './views/ToolsView';
 import DesignSystemView from './views/DesignSystemView';
 import IntegrationsView from './views/IntegrationsView';
+import AnalyticsView from './views/AnalyticsView';
 import SettingsModal from './components/SettingsModal';
 import ToastSystem from './components/ToastSystem';
 import GlobalSearch from './components/GlobalSearch';
@@ -136,6 +137,7 @@ const App: React.FC = () => {
       case 'Tools': return <ToolsView theme={theme} />;
       case 'DesignSystem': return <DesignSystemView theme={theme} />;
       case 'Integrations': return <IntegrationsView />;
+      case 'Analytics': return <AnalyticsView currentProjectId={activeProjectId} />;
       default: return <DashboardView theme={theme} modularity={modularity} meetings={mockMeetings} currentProject={activeProject} />;
     }
   };
