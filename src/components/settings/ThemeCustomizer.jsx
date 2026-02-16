@@ -23,6 +23,16 @@ const ThemeCustomizer = () => {
           onChange={(e) => setTheme({ ...theme, colors: { ...theme.colors, secondary: e.target.value } })}
         />
       </label>
+      <label>
+        Tile Style
+        <select
+          value={theme.layout?.tileStyle || 'solid'}
+          onChange={(e) => setTheme({ ...theme, layout: { ...theme.layout, tileStyle: e.target.value } })}
+        >
+          <option value="solid">Solid</option>
+          <option value="glass">Glass</option>
+        </select>
+      </label>
       <div className="chip-list">
         {presets.map((preset) => (
           <button key={preset.id} className="btn" type="button" onClick={() => setTheme(preset)}>

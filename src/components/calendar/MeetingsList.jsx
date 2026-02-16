@@ -2,14 +2,14 @@ import React from 'react';
 import { openMeetingUrl } from '../../utils/ipc';
 
 const Group = ({ title, meetings }) => (
-  <div>
+  <div className="meeting-group">
     <h4>{title}</h4>
     {meetings.length === 0 ? <p className="muted">No meetings</p> : null}
     {meetings.map((meeting) => (
       <article key={`${meeting.id}-${meeting.start}`} className="meeting-card">
         <div>
           <strong>{meeting.title}</strong>
-          <p>{new Date(meeting.start).toLocaleString()}</p>
+          <p className="muted">{new Date(meeting.start).toLocaleString()}</p>
         </div>
         {meeting.url ? (
           <button className="btn" type="button" onClick={() => openMeetingUrl(meeting.url)}>
@@ -22,7 +22,7 @@ const Group = ({ title, meetings }) => (
 );
 
 const MeetingsList = ({ groups }) => (
-  <div className="card">
+  <div className="card stack">
     <h3>Meetings</h3>
     <Group title="Today" meetings={groups.today} />
     <Group title="Tomorrow" meetings={groups.tomorrow} />

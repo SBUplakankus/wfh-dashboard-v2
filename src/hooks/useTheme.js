@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { gradientToCss } from '../utils/themes';
 
 const setVar = (key, value) => document.documentElement.style.setProperty(key, value);
+const setTileStyle = (value) => { document.documentElement.dataset.tileStyle = value || 'solid'; };
 
 export const useTheme = (theme) => {
   useEffect(() => {
@@ -23,5 +24,6 @@ export const useTheme = (theme) => {
     setVar('--base-font-size', `${theme.typography.baseFontSize}px`);
     setVar('--line-height', theme.typography.lineHeight);
     setVar('--font-family', theme.typography.fontFamily);
+    setTileStyle(theme.layout?.tileStyle);
   }, [theme]);
 };

@@ -7,8 +7,8 @@ const Header = ({ title, onOpenSettings }) => (
       <h1>{title}</h1>
       <p>Game Dev Unified Dashboard v2</p>
     </div>
-    <button className="btn" onClick={onOpenSettings} type="button">
-      <span className="row"><Settings size={14} aria-hidden="true" /> Settings</span>
+    <button className="btn icon-btn" aria-label="Open settings" onClick={onOpenSettings} type="button">
+      <Settings size={15} aria-hidden="true" />
     </button>
   </header>
 );
