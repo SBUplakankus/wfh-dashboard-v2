@@ -2,7 +2,7 @@ import { DEFAULT_THEME } from './themes';
 
 const projectBase = {
   features: { calendar: true, kanri: true, joplin: true, mkdocs: true, marktext: true, customLinks: true },
-  paths: { mkdocsPath: '', calendarFile: '', kanriPath: '', joplinPath: '', marktextPath: '' },
+  paths: { mkdocsPath: '', calendarFile: '', kanriPath: '', joplinPath: '', marktextPath: '', joplinDataFile: '', kanriDataFile: '' },
   calendarSettings: { hideAllDayEvents: false, hidePastMeetings: false, timeZone: '' },
   links: [],
   theme: null

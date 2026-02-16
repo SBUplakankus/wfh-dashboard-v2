@@ -10,7 +10,7 @@ const Sidebar = ({ onOpenSettings }: SidebarProps) => {
   const { projects, currentProject, setCurrentProjectId } = useProjectContext() as any;
 
   return (
-    <aside className="md3-card h-fit space-y-4 p-4">
+    <aside className="md3-card h-fit space-y-4 p-4 lg:sticky lg:top-6">
       <h2 className="md3-label">Projects</h2>
       <div className="space-y-2">
         {projects.map((project: any) => {
@@ -18,8 +18,8 @@ const Sidebar = ({ onOpenSettings }: SidebarProps) => {
           return (
             <button
               key={project.id}
-              className={`md3-button w-full justify-start gap-2 border-l-2 ${
-                active ? 'border-l-md3-primary bg-[#243458] text-white' : 'border-l-transparent bg-transparent'
+              className={`md3-button w-full justify-start gap-2 ${
+                active ? 'border-md3-primary bg-white/[0.05] text-white' : 'border-md3-outline bg-transparent'
               }`}
               onClick={() => setCurrentProjectId(project.id)}
               type="button"

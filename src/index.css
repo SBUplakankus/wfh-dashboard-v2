@@ -3,26 +3,23 @@
 @tailwind utilities;
 
 :root {
-  --md3-primary: #8da4ff;
-  --md3-on-primary: #0f1526;
-  --md3-secondary: #9cb0d7;
-  --md3-surface: #131722;
-  --md3-surface-variant: #1a2230;
-  --md3-outline: #303a4e;
-  --md3-on-surface: #e6ebf5;
-  --md3-on-surface-variant: #a9b4c9;
-  --md3-radius: 12px;
+  --md3-primary: #3b82f6;
+  --md3-on-primary: #f8fafc;
+  --md3-secondary: #94a3b8;
+  --md3-surface: #1a202c;
+  --md3-surface-variant: #212a3a;
+  --md3-outline: #2d3748;
+  --md3-on-surface: #f1f5f9;
+  --md3-on-surface-variant: #94a3b8;
+  --md3-radius: 10px;
 }
 
 @layer base {
   * { @apply box-border; }
 
   body {
-    @apply m-0 bg-[#090d16] text-md3-on-surface antialiased;
+    @apply m-0 bg-[#0A0E27] text-md3-on-surface antialiased;
     font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-    background-image:
-      radial-gradient(1100px 600px at 90% -5%, rgba(141, 164, 255, 0.14), transparent 60%),
-      radial-gradient(900px 420px at 10% -10%, rgba(156, 176, 215, 0.1), transparent 65%);
   }
 
   h1, h2, h3, h4, p {
@@ -34,19 +31,19 @@
 
 @layer components {
   .md3-card {
-    @apply rounded-md3 border border-md3-outline bg-md3-surface shadow-md3 backdrop-blur-sm;
+    @apply rounded-md3 border border-md3-outline bg-md3-surface transition duration-200 ease-out;
   }
 
   .md3-button {
-    @apply inline-flex items-center justify-center rounded-[10px] border border-md3-outline bg-md3-surface-variant px-3 py-2 text-sm font-medium text-md3-on-surface transition duration-200 ease-out hover:-translate-y-px hover:border-[#3d4b67] hover:bg-[#202b3e] focus-visible:outline-none focus-visible:ring-2;
+    @apply inline-flex items-center justify-center rounded-lg border border-md3-outline bg-md3-surface-variant px-3 py-2 text-[13px] font-medium text-md3-on-surface transition duration-200 ease-out hover:bg-white/[0.05] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-md3-primary;
   }
 
   .md3-button-primary {
-    @apply border-transparent bg-md3-primary text-md3-on-primary hover:bg-[#9fb3ff];
+    @apply border-transparent bg-md3-primary text-md3-on-primary hover:bg-[#2563eb];
   }
 
   .md3-input {
-    @apply w-full rounded-[10px] border border-md3-outline bg-[#0f1420] px-3 py-2 text-sm text-md3-on-surface placeholder:text-md3-on-surface-variant focus-visible:outline-none focus-visible:ring-2;
+    @apply w-full rounded-lg border border-md3-outline bg-md3-surface-variant px-3 py-2 text-[13px] text-md3-on-surface placeholder:text-md3-on-surface-variant focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-md3-primary;
   }
 
   .md3-label {
