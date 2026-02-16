@@ -44,4 +44,3 @@ export const tailwindPatterns = {
     card: 'transition duration-200 ease-out'
   }
 } as const;
-

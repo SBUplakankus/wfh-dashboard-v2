@@ -74,7 +74,7 @@ const Dashboard = ({ onOpenSettings }: DashboardProps) => {
     <div className="grid min-h-screen grid-cols-1 gap-6 p-6 lg:grid-cols-[256px_1fr]">
       <Sidebar onOpenSettings={onOpenSettings} />
       <motion.main
-        className="space-y-6 md3-card overflow-hidden"
+        className="md3-card space-y-6 overflow-hidden"
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.28, ease: 'easeOut' }}
