@@ -11,7 +11,8 @@ import {
   Search,
   Check,
   Plus,
-  Zap
+  Zap,
+  Layers
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -42,6 +43,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     { id: 'Calendar', label: 'Calendar', icon: Calendar },
     { id: 'WorkWeek', label: 'Work Week', icon: Clock },
     { id: 'Tools', label: 'Launcher', icon: Briefcase },
+    { id: 'Integrations', label: 'Integrations', icon: Layers },
   ];
 
   // Click outside handler for dropdown

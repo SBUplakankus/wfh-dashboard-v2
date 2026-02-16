@@ -62,7 +62,7 @@ export interface ModularityConfig {
   showSchedule: boolean;
 }
 
-export type ViewType = 'Dashboard' | 'Calendar' | 'WorkWeek' | 'Tools' | 'Settings' | 'DesignSystem';
+export type ViewType = 'Dashboard' | 'Calendar' | 'WorkWeek' | 'Tools' | 'Settings' | 'DesignSystem' | 'Integrations';
 export type TabType = 'Projects' | 'Theme' | 'Modularity' | 'Tools';
 
 export interface Toast {

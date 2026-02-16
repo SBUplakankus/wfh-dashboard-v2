@@ -9,6 +9,7 @@ import CalendarView from './components/CalendarView';
 import WorkWeekView from './components/WorkWeekView';
 import ToolsView from './views/ToolsView';
 import DesignSystemView from './views/DesignSystemView';
+import IntegrationsView from './views/IntegrationsView';
 import SettingsModal from './components/SettingsModal';
 import ToastSystem from './components/ToastSystem';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -104,6 +105,7 @@ const App: React.FC = () => {
       case 'WorkWeek': return <div className="p-8 h-full"><WorkWeekView theme={theme} meetings={mockMeetings} /></div>;
       case 'Tools': return <ToolsView theme={theme} />;
       case 'DesignSystem': return <DesignSystemView theme={theme} />;
+      case 'Integrations': return <IntegrationsView />;
       default: return <DashboardView theme={theme} modularity={modularity} meetings={mockMeetings} />;
     }
   };
