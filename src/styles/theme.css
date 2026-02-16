@@ -1,0 +1,15 @@
+.layout { display: grid; grid-template-columns: var(--sidebar-width) 1fr; min-height: 100vh; gap: var(--spacing); padding: var(--spacing); }
+.content { overflow: auto; }
+.card { border: 1px solid var(--border-color); border-radius: var(--radius); background: var(--bg-secondary); padding: var(--spacing); box-shadow: 0 1px 0 rgba(15, 23, 42, 0.35); }
+.card-inline { padding: 10px 12px; border-radius: 6px; border: 1px solid transparent; }
+.header { background: var(--bg-secondary); align-items: center; }
+.header p { color: var(--text-secondary); margin-top: 2px; font-size: 0.85rem; }
+.stack { display: flex; flex-direction: column; gap: var(--spacing); }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.between { justify-content: space-between; }
+.muted { color: var(--text-secondary); }
+
+h1 { font-size: 1.5rem; font-weight: 600; letter-spacing: 0.01em; }
+h2 { font-size: 0.95rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; }
+h3 { font-size: 0.95rem; font-weight: 600; }
+h4 { font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); }

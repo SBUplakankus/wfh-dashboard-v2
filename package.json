@@ -1,0 +1,48 @@
+{
+  "name": "wfh-dashboard-v2",
+  "version": "1.0.0",
+  "description": "Simple Hub Dashboard to connect my stuff",
+  "main": "public/main.js",
+  "scripts": {
+    "test": "react-scripts test --watchAll=false --passWithNoTests",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "dev": "react-scripts start",
+    "electron": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SBUplakankus/wfh-dashboard-v2.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SBUplakankus/wfh-dashboard-v2/issues"
+  },
+  "dependencies": {
+    "electron": "^40.4.1",
+    "electron-is-dev": "^3.0.1",
+    "ical.js": "^2.2.1",
+    "lucide-react": "^0.564.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "^5.0.1"
+  },
+  "private": true,
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.3.2"
+  }
+}
