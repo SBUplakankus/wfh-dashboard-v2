@@ -200,7 +200,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           
           <button 
             onClick={onClose}
-            className="mt-auto w-full py-3 bg-neutral-800 hover:bg-neutral-700 text-[11px] font-bold rounded-xl transition-all border border-white/5 shadow-lg active:scale-98"
+            className="mt-auto w-full py-3 bg-neutral-800 hover:bg-neutral-700 text-[11px] font-bold rounded-xl transition-all border border-white/5 shadow-lg active:scale-[0.98]"
           >
             CLOSE SETTINGS
           </button>

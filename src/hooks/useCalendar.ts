@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Meeting } from '../types';
 import ICAL from 'ical.js';
 
@@ -64,7 +64,7 @@ export const useCalendar = (config: CalendarConfig) => {
     }
   };
 
-  const loadCalendars = async () => {
+  const loadCalendars = useCallback(async () => {
     setIsLoading(true);
     setError(null);
 
@@ -90,13 +90,13 @@ export const useCalendar = (config: CalendarConfig) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [config.workCalendarPath, config.personalCalendarPath]);
 
   useEffect(() => {
     if (config.workCalendarPath || config.personalCalendarPath) {
       loadCalendars();
     }
-  }, [config.workCalendarPath, config.personalCalendarPath]);
+  }, [config.workCalendarPath, config.personalCalendarPath, loadCalendars]);
 
   return {
     meetings,
