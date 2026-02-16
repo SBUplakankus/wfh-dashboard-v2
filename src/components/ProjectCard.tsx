@@ -22,6 +22,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   onEdit, 
   onDelete 
 }) => {
+  const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
   const IconComponent = getIconComponent(project.icon);
 
   const statusColors = {
@@ -88,28 +89,51 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
 
       {/* Project Actions */}
       <div className="flex gap-2">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onEdit(project);
-          }}
-          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium border border-[var(--border)] rounded-lg text-[var(--text-primary)] transition-all hover:border-[var(--accent)] hover:text-[var(--accent)] hover:bg-[var(--accent)]/5"
-        >
-          <Edit className="w-4 h-4" />
-          Edit
-        </button>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            if (confirm(`Are you sure you want to delete "${project.name}"?`)) {
-              onDelete(project.id);
-            }
-          }}
-          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium border border-[var(--border)] rounded-lg text-[var(--text-primary)] transition-all hover:border-red-500 hover:text-red-500 hover:bg-red-500/5"
-        >
-          <Trash2 className="w-4 h-4" />
-          Delete
-        </button>
+        {showDeleteConfirm ? (
+          <>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowDeleteConfirm(false);
+              }}
+              className="flex-1 px-3 py-2 text-sm font-medium border border-[var(--border)] rounded-lg text-[var(--text-primary)] transition-all hover:border-[var(--accent)] hover:text-[var(--accent)] hover:bg-[var(--accent)]/5"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(project.id);
+              }}
+              className="flex-1 px-3 py-2 text-sm font-medium border border-red-500 rounded-lg text-red-500 transition-all hover:bg-red-500/10"
+            >
+              Confirm Delete
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(project);
+              }}
+              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium border border-[var(--border)] rounded-lg text-[var(--text-primary)] transition-all hover:border-[var(--accent)] hover:text-[var(--accent)] hover:bg-[var(--accent)]/5"
+            >
+              <Edit className="w-4 h-4" />
+              Edit
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowDeleteConfirm(true);
+              }}
+              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium border border-[var(--border)] rounded-lg text-[var(--text-primary)] transition-all hover:border-red-500 hover:text-red-500 hover:bg-red-500/5"
+            >
+              <Trash2 className="w-4 h-4" />
+              Delete
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

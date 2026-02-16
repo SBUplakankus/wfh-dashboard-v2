@@ -41,11 +41,14 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
 
   if (!isOpen) return null;
 
+  const [error, setError] = useState<string>('');
+
   const handleSubmit = () => {
     if (!formData.name.trim()) {
-      alert('Project name is required');
+      setError('Project name is required');
       return;
     }
+    setError('');
     onCreateProject(formData);
   };
 
@@ -103,6 +106,11 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
 
         {/* Tab Content */}
         <div className="p-6 min-h-[400px]">
+          {error && (
+            <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm">
+              {error}
+            </div>
+          )}
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}

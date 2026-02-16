@@ -14,7 +14,7 @@ export const HomePage: React.FC = () => {
 
   const filteredProjects = projects.filter((p) =>
     p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.description.toLowerCase().includes(searchTerm.toLowerCase())
+    p.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleCreateProject = (projectData: Omit<Project, 'id'>) => {

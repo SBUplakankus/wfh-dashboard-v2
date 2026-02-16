@@ -20,7 +20,7 @@ import CreateTaskModal from './components/integrations/CreateTaskModal';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const AppContent: React.FC = () => {
-  const { projects, activeProjectId } = useProjects();
+  const { projects, activeProjectId, setActiveProjectId } = useProjects();
   const [activeView, setActiveView] = useState<ViewType>('Home');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -138,9 +138,7 @@ const AppContent: React.FC = () => {
       <Sidebar 
         projects={projects} 
         activeProjectId={activeProjectId} 
-        onSelectProject={(id) => {
-          /* Project selection handled by ProjectContext */
-        }}
+        onSelectProject={setActiveProjectId}
         activeView={activeView}
         onSelectView={setActiveView}
         onOpenSettings={() => setIsSettingsOpen(true)}
@@ -184,7 +182,10 @@ const AppContent: React.FC = () => {
             modularity={modularity}
             setModularity={setModularity}
             projects={projects}
-            setProjects={() => {}}
+            setProjects={() => {
+              // Projects are now managed through HomePage and ProjectContext
+              // This prop is kept for backward compatibility with SettingsModal
+            }}
           />
         )}
       </AnimatePresence>
