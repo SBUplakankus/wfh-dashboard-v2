@@ -1,4 +1,5 @@
 import React from 'react';
+import { openMeetingUrl } from '../../utils/ipc';
 
 const Group = ({ title, meetings }) => (
   <div>
@@ -10,9 +11,11 @@ const Group = ({ title, meetings }) => (
           <strong>{meeting.title}</strong>
           <p>{new Date(meeting.start).toLocaleString()}</p>
         </div>
-        <button className="btn" type="button">
-          Join
-        </button>
+        {meeting.url ? (
+          <button className="btn" type="button" onClick={() => openMeetingUrl(meeting.url)}>
+            Join
+          </button>
+        ) : null}
       </article>
     ))}
   </div>

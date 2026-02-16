@@ -17,6 +17,7 @@ const ProjectManager = () => {
       type: 'custom',
       features: { calendar: true, kanri: true, joplin: true, mkdocs: true, marktext: true, customLinks: true },
       paths: {},
+      calendarSettings: { hideAllDayEvents: false, hidePastMeetings: false, timeZone: '' },
       links: [],
       theme: null,
       createdAt: Date.now(),
