@@ -71,18 +71,20 @@ const Dashboard = ({ onOpenSettings }: DashboardProps) => {
   }, [events, calendarSettings.hideAllDayEvents, calendarSettings.hidePastMeetings]);
 
   return (
-    <div className="grid min-h-screen grid-cols-1 gap-6 p-6 lg:grid-cols-[220px_1fr]">
+    <div className="grid min-h-screen grid-cols-1 gap-6 p-6 lg:grid-cols-[256px_1fr]">
       <Sidebar onOpenSettings={onOpenSettings} />
       <motion.main
-        className="space-y-6"
+        className="space-y-6 md3-card overflow-hidden"
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.28, ease: 'easeOut' }}
       >
         <Header title={currentProject?.name || 'Dashboard'} onOpenSettings={onOpenSettings} />
-        {features.calendar ? <CalendarSection events={filteredEvents} calendarSettings={calendarSettings} /> : null}
-        {features.kanri || features.joplin || features.mkdocs || features.marktext ? <ToolsSection project={currentProject} /> : null}
-        {features.customLinks ? <CustomLinksSection links={currentProject?.links} /> : null}
+        <div className="space-y-6 p-6">
+          {features.calendar ? <CalendarSection events={filteredEvents} calendarSettings={calendarSettings} /> : null}
+          {features.kanri || features.joplin || features.mkdocs || features.marktext ? <ToolsSection project={currentProject} /> : null}
+          {features.customLinks ? <CustomLinksSection links={currentProject?.links} /> : null}
+        </div>
       </motion.main>
     </div>
   );
