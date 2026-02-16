@@ -5,9 +5,10 @@ import { KanriTask } from '../../types';
 interface KanriStatsWidgetProps {
   tasks: KanriTask[];
   glassStyle?: string;
+  onNavigateToTasks?: () => void;
 }
 
-const KanriStatsWidget: React.FC<KanriStatsWidgetProps> = ({ tasks, glassStyle = '' }) => {
+const KanriStatsWidget: React.FC<KanriStatsWidgetProps> = ({ tasks, glassStyle = '', onNavigateToTasks }) => {
   // Calculate real stats from Kanri tasks
   const todoTasks = tasks.filter(t => t.column === 'To Do');
   const inProgressTasks = tasks.filter(t => t.column === 'In Progress');
@@ -22,8 +23,12 @@ const KanriStatsWidget: React.FC<KanriStatsWidgetProps> = ({ tasks, glassStyle =
   
   return (
     <div 
-      className={`p-6 border transition-all duration-300 hover:-translate-y-1 cursor-default ${glassStyle}`}
-      style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border)', borderRadius: 'var(--radius)' }}
+      className={`p-6 border transition-all duration-300 cursor-default ${glassStyle}`}
+      style={{ 
+        backgroundColor: 'var(--card-bg)', 
+        borderColor: 'var(--border)', 
+        borderRadius: 'var(--radius)',
+      }}
     >
       <div className="flex items-center justify-between mb-6">
         <div className="p-2 rounded-lg bg-green-500/10">
@@ -31,7 +36,8 @@ const KanriStatsWidget: React.FC<KanriStatsWidgetProps> = ({ tasks, glassStyle =
         </div>
         <button 
           className="p-1.5 rounded-lg hover:bg-white/5 transition-colors opacity-60 hover:opacity-100"
-          onClick={() => {/* Navigate to Integrations/Tasks */}}
+          onClick={onNavigateToTasks}
+          title="View all tasks"
         >
           <ArrowUpRight className="w-3.5 h-3.5" />
         </button>

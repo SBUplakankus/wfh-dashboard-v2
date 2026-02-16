@@ -5,9 +5,10 @@ import { DocFile } from '../../types';
 interface MkDocsStatsWidgetProps {
   files: DocFile[];
   glassStyle?: string;
+  onNavigateToDocs?: () => void;
 }
 
-const MkDocsStatsWidget: React.FC<MkDocsStatsWidgetProps> = ({ files, glassStyle = '' }) => {
+const MkDocsStatsWidget: React.FC<MkDocsStatsWidgetProps> = ({ files, glassStyle = '', onNavigateToDocs }) => {
   // Calculate real stats from file tree
   const countFiles = (fileList: DocFile[]): number => {
     return fileList.reduce((count, file) => {
@@ -48,8 +49,12 @@ const MkDocsStatsWidget: React.FC<MkDocsStatsWidgetProps> = ({ files, glassStyle
   
   return (
     <div 
-      className={`p-6 border transition-all duration-300 hover:-translate-y-1 cursor-default ${glassStyle}`}
-      style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border)', borderRadius: 'var(--radius)' }}
+      className={`p-6 border transition-all duration-300 cursor-default ${glassStyle}`}
+      style={{ 
+        backgroundColor: 'var(--card-bg)', 
+        borderColor: 'var(--border)', 
+        borderRadius: 'var(--radius)',
+      }}
     >
       <div className="flex items-center justify-between mb-6">
         <div className="p-2 rounded-lg bg-blue-500/10">
@@ -57,7 +62,8 @@ const MkDocsStatsWidget: React.FC<MkDocsStatsWidgetProps> = ({ files, glassStyle
         </div>
         <button 
           className="p-1.5 rounded-lg hover:bg-white/5 transition-colors opacity-60 hover:opacity-100"
-          onClick={() => {/* Navigate to Integrations/Documentation */}}
+          onClick={onNavigateToDocs}
+          title="View all documentation"
         >
           <ArrowUpRight className="w-3.5 h-3.5" />
         </button>

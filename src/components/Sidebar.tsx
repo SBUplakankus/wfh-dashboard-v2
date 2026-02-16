@@ -11,7 +11,6 @@ import {
   Search,
   Check,
   Plus,
-  Zap,
   Layers,
   TrendingUp,
   LucideIcon
@@ -120,7 +119,13 @@ const Sidebar: React.FC<SidebarProps> = ({
               </button>
             ))}
             <div className="border-t border-white/5 my-1" />
-            <button className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-[12px] hover:bg-white/[0.04] text-neutral-500 hover:text-white transition-colors outline-none">
+            <button 
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-[12px] hover:bg-white/[0.04] text-neutral-500 hover:text-white transition-colors outline-none"
+              onClick={() => {
+                setIsProjectDropdownOpen(false);
+                onOpenSettings();
+              }}
+            >
               <Plus className="w-3.5 h-3.5" />
               <span>New Project</span>
             </button>
@@ -146,16 +151,6 @@ const Sidebar: React.FC<SidebarProps> = ({
               </button>
             );
           })}
-          
-          <div className="h-3" />
-          
-          <button
-            onClick={() => onSelectView('DesignSystem')}
-            className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-[12px] transition-all group outline-none focus-visible:ring-1 focus-visible:ring-blue-500 ${activeView === 'DesignSystem' ? 'bg-white/[0.05] text-white' : 'text-neutral-500 hover:text-neutral-300 hover:bg-white/[0.02]'}`}
-          >
-            <Zap className={`w-3.5 h-3.5 transition-colors ${activeView === 'DesignSystem' ? 'text-amber-500' : 'group-hover:text-amber-400'}`} />
-            <span>Design System</span>
-          </button>
         </nav>
       </div>
 

@@ -5,9 +5,10 @@ import { JoplinNote, JoplinNotebook } from '../../types';
 interface JoplinStatsWidgetProps {
   notebooks: JoplinNotebook[];
   glassStyle?: string;
+  onNavigateToNotes?: () => void;
 }
 
-const JoplinStatsWidget: React.FC<JoplinStatsWidgetProps> = ({ notebooks, glassStyle = '' }) => {
+const JoplinStatsWidget: React.FC<JoplinStatsWidgetProps> = ({ notebooks, glassStyle = '', onNavigateToNotes }) => {
   // Calculate real stats from Joplin data
   const allNotes = notebooks.flatMap(nb => nb.notes);
   const totalNotes = allNotes.length;
@@ -26,8 +27,12 @@ const JoplinStatsWidget: React.FC<JoplinStatsWidgetProps> = ({ notebooks, glassS
   
   return (
     <div 
-      className={`p-6 border transition-all duration-300 hover:-translate-y-1 cursor-default ${glassStyle}`}
-      style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border)', borderRadius: 'var(--radius)' }}
+      className={`p-6 border transition-all duration-300 cursor-default ${glassStyle}`}
+      style={{ 
+        backgroundColor: 'var(--card-bg)', 
+        borderColor: 'var(--border)', 
+        borderRadius: 'var(--radius)',
+      }}
     >
       <div className="flex items-center justify-between mb-6">
         <div className="p-2 rounded-lg bg-purple-500/10">
@@ -35,7 +40,8 @@ const JoplinStatsWidget: React.FC<JoplinStatsWidgetProps> = ({ notebooks, glassS
         </div>
         <button 
           className="p-1.5 rounded-lg hover:bg-white/5 transition-colors opacity-60 hover:opacity-100"
-          onClick={() => {/* Navigate to Integrations/Notes */}}
+          onClick={onNavigateToNotes}
+          title="View all notes"
         >
           <ArrowUpRight className="w-3.5 h-3.5" />
         </button>
