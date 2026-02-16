@@ -86,21 +86,46 @@ Before creating a distributable package, test the production build:
 npm run electron:build:win
 ```
 
+**Important:** This command may take 5-10 minutes on first run. You'll see output like:
+```
+> wfh-dashboard-v2@1.0.0 electron:build:win
+> npm run build && electron-builder --win
+
+> wfh-dashboard-v2@1.0.0 build
+> vite build
+
+vite v7.x.x building for production...
+✓ built in 5.xx s
+
+• electron-builder  version=26.7.0
+• loaded configuration  file=package.json ("build" field)
+• writing effective config  file=release/builder-effective-config.yaml
+• packaging       platform=win32 arch=x64 electron=40.4.1 appOutDir=release\win-unpacked
+• downloading     url=https://github.com/electron/electron/releases/download/...
+• building        target=nsis arch=x64 file=release/WFH Dashboard Setup 1.0.0.exe
+• building        target=portable arch=x64 file=release/WFH Dashboard 1.0.0.exe
+```
+
+**If terminal output stops:** The build is still running in the background. Wait 5-10 minutes for first build.
+
 This creates:
-- **NSIS Installer**: `release/WFH Dashboard Setup X.X.X.exe`
+- **NSIS Installer**: `release/WFH Dashboard Setup 1.0.0.exe`
   - Full installer with start menu shortcuts
   - Supports per-user and per-machine installation
   - Can be customized with install location
+  - ~150 MB file size
   
-- **Portable Executable**: `release/WFH Dashboard X.X.X.exe`
+- **Portable Executable**: `release/WFH Dashboard 1.0.0.exe`
   - Standalone executable that can run without installation
   - Perfect for USB drives or network shares
   - No admin rights required
+  - ~150 MB file size
 
 **First-time notes:**
 - The first build will download Windows build tools (~150 MB)
-- Subsequent builds will be much faster
+- Subsequent builds will be much faster (2-3 minutes)
 - Windows may show a SmartScreen warning for unsigned executables
+- Total download size on first build: ~300 MB
 
 ### macOS Application
 
@@ -207,6 +232,38 @@ Edit `directories.output` in `package.json`:
 ```
 
 ## Troubleshooting
+
+### Terminal Output Issues
+
+**Problem: npm commands show no output or terminal seems frozen**
+
+This is normal during the electron-builder download phase. The build process:
+1. Runs `vite build` (5-10 seconds, shows progress)
+2. Downloads Electron binaries silently (2-5 minutes on first run, **no output shown**)
+3. Packages the application (1-2 minutes, shows progress)
+
+**Solutions:**
+- **Wait patiently** - First build takes 5-10 minutes total
+- **Check Task Manager/Activity Monitor** - Verify npm/node processes are running
+- **Check disk space** - Ensure you have at least 2 GB free space
+- **Monitor the release folder**:
+  ```bash
+  # Windows
+  dir release
+  
+  # macOS/Linux
+  ls -lh release/
+  ```
+  Files will appear once the build completes
+
+**Verify build is working:**
+```bash
+# Start the build
+npm run electron:build:win
+
+# In another terminal, check progress
+watch -n 5 ls -lh release/
+```
 
 ### Build Errors
 
