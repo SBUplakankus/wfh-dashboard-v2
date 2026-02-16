@@ -1,52 +1,49 @@
-# Dashboard Validation (v1 pre-release pass)
+# Dashboard Validation (post Vite + integration pass)
 
 Date: 2026-02-16
 
 ## Automated validation
 
-- ✅ `npm run build` passes
-- ✅ `npm test` passes
-- ✅ Added regression test for work-week weekday range:
+- ✅ `npm install` completes with no vulnerabilities
+- ✅ `npm run build` passes (Vite)
+- ✅ `npm test` passes (Vitest)
+- ✅ Coverage includes:
   - `src/components/sections/WorkWeekMeetingsSection.test.jsx`
+  - `src/components/SettingsPanel.test.tsx`
+  - `src/components/settings/ThemeCustomizer.test.jsx`
+  - `src/components/sections/ToolsSection.test.tsx`
 
 ## Manual validation summary
 
 ### Verified working
 
-- ✅ Default projects load on first launch
-- ✅ Project switch updates header/content context
-- ✅ New project creation works and appears in sidebar
-- ✅ Settings modal opens/closes and tab navigation works without crashes
-- ✅ Calendar section, meetings section, and work-week grid render together
-- ✅ Work-week navigation (previous/next) updates week range and day columns
-- ✅ Work-week columns render Monday–Friday
-- ✅ Day-level empty state (`Clear`) appears when no meetings exist
-- ✅ Meeting cards show title/time/duration
-- ✅ Join button appears only when event URL exists
-- ✅ Join button uses safe URL validation (`https:` only)
-- ✅ Calendar settings (hide all-day, timezone) apply without runtime errors
-- ✅ Responsive behavior remains usable with existing CSS breakpoints
+- ✅ Project switching updates active context and header title
+- ✅ Settings modal opens/closes and responds to `Escape`
+- ✅ Theme tab controls apply values and preset switching updates runtime CSS variables
+- ✅ Calendar stack renders and work-week navigation updates displayed range
+- ✅ Tools section now includes:
+  - MkDocs file browser scaffold with refresh
+  - markdown preview panel
+  - create-and-open markdown action (Electron path required)
+  - Joplin and Kanri read-only preview widgets from optional JSON
+- ✅ Tools settings tab persists integration paths per project
+- ✅ Console during manual run shows no runtime errors
 
-### Not fully implemented / deferred
+## Current scope notes
 
-These checklist items remain partial or not implemented in the current MVP and should be tracked for a follow-up phase:
+This pass delivers **MVP deep integration surfaces**. The following are intentionally partial/deferred:
 
-- ⚠️ Full project editing workflow (description/type/feature toggles in UI)
-- ⚠️ Delete confirmation dialog before project removal
-- ⚠️ Complete feature-toggle controls for all sections in settings
-- ⚠️ Theme system depth requested in extended checklist (advanced gradients/typography/layout transitions/import-export)
-- ⚠️ MarkText quick files dropdown and advanced file-open workflow
-- ⚠️ Settings import/export JSON UX
-- ⚠️ User-facing toast/error feedback for all failure modes
-- ⚠️ Comprehensive accessibility/performance benchmarking targets in checklist
-- ⚠️ Cross-platform manual QA (macOS/Windows/Linux) and full Electron menu behavior validation
+- ⚠️ Rich context menus (right-click actions) in browser tree
+- ⚠️ Real-time file watching and “externally modified” indicators
+- ⚠️ Native Joplin/Kanri API synchronization (current approach is optional JSON preview inputs)
+- ⚠️ Global cross-tool search and quick switcher
+- ⚠️ Drag/drop cross-tool linking workflows
+- ⚠️ Advanced build/deploy controls for MkDocs (`mkdocs build/serve/deploy`)
 
 ## CI note
 
-Recent `Build` workflow runs show `action_required` with no jobs created, indicating repository/workflow permission or approval gating rather than a code test failure. Local build/test validation passes.
+Recent `Build` workflow entries show `action_required` with no jobs created, indicating workflow approval/gating rather than test/build failures from this branch.
 
 ## Evidence
 
-Screenshot captured during this validation pass:
-
-- https://github.com/user-attachments/assets/23b20e28-0fd8-4d05-ac60-ab36b001703d
+- https://github.com/user-attachments/assets/5f37fbfa-b385-4126-816c-fe2669c3365f

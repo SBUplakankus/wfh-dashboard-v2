@@ -3,11 +3,12 @@ const fs = require('fs/promises');
 const path = require('path');
 const { spawn } = require('child_process');
 const isDev = require('electron-is-dev');
+const MAX_DIRECTORY_DEPTH = 5;
 
 const configPath = () => path.join(app.getPath('userData'), 'dashboard-config.json');
 const isMarkdown = (value) => value.toLowerCase().endsWith('.md');
 
-const buildDirectoryTree = async (dirPath, depth = 0, maxDepth = 4) => {
+const buildDirectoryTree = async (dirPath, depth = 0, maxDepth = MAX_DIRECTORY_DEPTH) => {
   if (!dirPath || depth > maxDepth) return [];
   const entries = await fs.readdir(dirPath, { withFileTypes: true });
   const nodes = await Promise.all(

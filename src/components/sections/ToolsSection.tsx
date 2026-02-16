@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FileText, Folder, FolderOpen, NotebookText, SquareKanban } from 'lucide-react';
 import { listDirectory, openApp, openAppWithFile, openFile, readFile, writeFile } from '../../utils/ipc';
 
@@ -96,18 +96,18 @@ const ToolsSection = ({ project }: { project: any }) => {
   const [targetFolder, setTargetFolder] = useState('');
   const [joplinData, setJoplinData] = useState<{ notebooks: any[]; notes: any[] }>({ notebooks: [], notes: [] });
   const [kanriData, setKanriData] = useState<{ columns: any[]; tasks: any[] }>({ columns: [], tasks: [] });
+  const [statusMessage, setStatusMessage] = useState('');
 
-  const refreshMkdocsTree = async () => {
+  const refreshMkdocsTree = useCallback(async () => {
     const tree = await listDirectory(paths.mkdocsPath || '');
     setMkdocsTree(tree);
     if (!targetFolder && paths.mkdocsPath) setTargetFolder(paths.mkdocsPath);
     setExpanded((prev) => ({ ...prev, [paths.mkdocsPath]: true }));
-  };
+  }, [paths.mkdocsPath, targetFolder]);
 
   useEffect(() => {
     refreshMkdocsTree();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [paths.mkdocsPath]);
+  }, [refreshMkdocsTree]);
 
   useEffect(() => {
     if (!paths.joplinDataFile) {
@@ -145,8 +145,12 @@ const ToolsSection = ({ project }: { project: any }) => {
     const normalizedName = newFileName.trim().endsWith('.md') ? newFileName.trim() : `${newFileName.trim()}.md`;
     const fullPath = `${targetFolder.replace(/\/$/, '')}/${normalizedName}`;
     const result = await writeFile(fullPath, TEMPLATE_MAP[template] || TEMPLATE_MAP.blank);
-    if (result?.ok === false) return;
+    if (result?.ok === false) {
+      setStatusMessage(result.error || 'Unable to create markdown file.');
+      return;
+    }
     setNewFileName('');
+    setStatusMessage(`Created ${normalizedName}`);
     await refreshMkdocsTree();
     await onSelectFile(fullPath);
     openInMarkText(fullPath);
@@ -209,6 +213,7 @@ const ToolsSection = ({ project }: { project: any }) => {
               </button>
             ) : null}
           </div>
+          {statusMessage ? <p className="text-xs text-md3-on-surface-variant">{statusMessage}</p> : null}
         </div>
         <div className="md3-card space-y-3 p-4">
           <h4 className="text-sm font-semibold text-md3-on-surface">Markdown Preview</h4>
