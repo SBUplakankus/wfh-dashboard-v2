@@ -12,8 +12,17 @@ import {
   Check,
   Plus,
   Zap,
-  Layers
+  Layers,
+  LucideIcon
 } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
+
+// Helper to get icon component
+const getIconComponent = (iconName?: string): LucideIcon => {
+  if (!iconName) return Briefcase;
+  const IconComponent = (LucideIcons as any)[iconName];
+  return IconComponent || Briefcase;
+};
 
 interface SidebarProps {
   projects: Project[];
@@ -74,7 +83,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         >
           <div className="flex items-center gap-2">
             <div className="w-5 h-5 rounded bg-neutral-800 flex items-center justify-center border border-white/10">
-              <span className="text-[9px] font-bold text-white">{(activeProject.name || 'XX').substring(0,2).toUpperCase()}</span>
+              {React.createElement(getIconComponent(activeProject.icon), { className: "w-3 h-3 text-white" })}
             </div>
             <div className="text-left">
               <p className="text-[12px] font-semibold leading-none" style={{ color: 'var(--text-primary)' }}>{activeProject.name}</p>
@@ -100,7 +109,9 @@ const Sidebar: React.FC<SidebarProps> = ({
                 className="w-full flex items-center justify-between px-3 py-2 rounded-md text-[12px] hover:bg-white/[0.04] text-neutral-400 hover:text-white transition-colors focus-visible:bg-white/[0.04] outline-none"
               >
                 <div className="flex items-center gap-2">
-                  <div className={`w-4 h-4 rounded-sm border ${p.id === activeProjectId ? 'bg-blue-500 border-blue-400' : 'bg-neutral-800 border-white/5'}`} />
+                  <div className={`w-4 h-4 rounded-sm border flex items-center justify-center ${p.id === activeProjectId ? 'bg-blue-500 border-blue-400' : 'bg-neutral-800 border-white/5'}`}>
+                    {React.createElement(getIconComponent(p.icon), { className: "w-2.5 h-2.5 text-white" })}
+                  </div>
                   <span>{p.name}</span>
                 </div>
                 {p.id === activeProjectId && <Check className="w-3.5 h-3.5 text-blue-500" />}

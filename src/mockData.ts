@@ -8,6 +8,7 @@ export const mockProjects: Project[] = [
     description: 'Main production workspace for the upcoming RPG.',
     category: 'Work',
     status: 'Active',
+    icon: 'Gamepad2',
     links: [
       { id: 'l1', label: 'Trello Board', url: '#' },
       { id: 'l2', label: 'Design Doc', url: '#' }
@@ -18,14 +19,16 @@ export const mockProjects: Project[] = [
     name: 'Personal Site',
     description: 'Next.js portfolio and blog.',
     category: 'Personal',
-    status: 'Paused'
+    status: 'Paused',
+    icon: 'User'
   },
   {
     id: '3',
     name: 'Void Engine',
     description: 'Internal rendering experiments in Rust.',
     category: 'Side',
-    status: 'Backlog'
+    status: 'Backlog',
+    icon: 'Cpu'
   }
 ];
 

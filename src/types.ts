@@ -5,6 +5,7 @@ export interface Project {
   description: string;
   category: 'Work' | 'Personal' | 'Side';
   status: 'Active' | 'Paused' | 'Completed' | 'Backlog';
+  icon?: string; // Lucide icon name
   links?: CustomLink[];
 }
 
