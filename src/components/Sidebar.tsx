@@ -48,6 +48,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const activeProject = projects.find(p => p.id === activeProjectId) || projects[0];
 
   const navItems: { id: ViewType; label: string; icon: any }[] = [
+    { id: 'Home', label: 'Home', icon: LayoutDashboard },
     { id: 'Dashboard', label: 'Overview', icon: LayoutDashboard },
     { id: 'Analytics', label: 'Analytics', icon: TrendingUp },
     { id: 'Calendar', label: 'Calendar', icon: Calendar },

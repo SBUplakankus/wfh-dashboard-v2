@@ -1,9 +1,11 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { Project, ThemeConfig, ModularityConfig, ViewType, Toast } from './types';
-import { mockProjects, mockMeetings } from './mockData';
+import { ThemeConfig, ModularityConfig, ViewType, Toast } from './types';
+import { mockMeetings } from './mockData';
+import { ProjectProvider, useProjects } from './context/ProjectContext';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
+import HomePage from './views/HomePage';
 import DashboardView from './views/DashboardView';
 import CalendarView from './components/CalendarView';
 import WorkWeekView from './components/WorkWeekView';
@@ -16,12 +18,10 @@ import GlobalSearch from './components/GlobalSearch';
 import KeyboardShortcutsHelp from './components/KeyboardShortcutsHelp';
 import CreateTaskModal from './components/integrations/CreateTaskModal';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus } from 'lucide-react';
 
-const App: React.FC = () => {
-  const [projects, setProjects] = useState<Project[]>(mockProjects);
-  const [activeProjectId, setActiveProjectId] = useState<string>(projects[0].id);
-  const [activeView, setActiveView] = useState<ViewType>('Dashboard');
+const AppContent: React.FC = () => {
+  const { projects, activeProjectId, setActiveProjectId } = useProjects();
+  const [activeView, setActiveView] = useState<ViewType>('Home');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isShortcutsHelpOpen, setIsShortcutsHelpOpen] = useState(false);
@@ -118,32 +118,15 @@ const App: React.FC = () => {
   );
 
   const renderView = () => {
-    if (projects.length === 0) {
-      return (
-        <div className="h-full flex flex-col items-center justify-center p-8 text-center">
-           <div className="p-4 bg-white/5 rounded-2xl mb-4 border border-white/10">
-              <Plus className="w-8 h-8 text-neutral-600" />
-           </div>
-           <h2 className="text-xl font-bold mb-2">No projects found</h2>
-           <p className="text-neutral-500 text-sm max-w-xs mb-6">Create your first project to start managing your game development workflow.</p>
-           <button 
-             className="px-6 py-2 bg-blue-600 text-white font-bold rounded-xl active:scale-95 transition-all shadow-xl shadow-blue-500/20"
-             onClick={() => setIsSettingsOpen(true)}
-           >
-             Create Project
-           </button>
-        </div>
-      );
-    }
-
     switch(activeView) {
+      case 'Home': return <HomePage />;
       case 'Dashboard': return <DashboardView theme={theme} modularity={modularity} meetings={mockMeetings} currentProject={activeProject} onNavigateToView={setActiveView} onOpenCreateTask={() => setIsCreateTaskOpen(true)} />;
       case 'Calendar': return <div className="p-10 max-w-[1200px] mx-auto"><CalendarView theme={theme} /></div>;
       case 'WorkWeek': return <div className="p-8 h-full"><WorkWeekView theme={theme} meetings={mockMeetings} /></div>;
       case 'Tools': return <ToolsView theme={theme} />;
       case 'Integrations': return <IntegrationsView />;
       case 'Analytics': return <AnalyticsView currentProjectId={activeProjectId} />;
-      default: return <DashboardView theme={theme} modularity={modularity} meetings={mockMeetings} currentProject={activeProject} onNavigateToView={setActiveView} onOpenCreateTask={() => setIsCreateTaskOpen(true)} />;
+      default: return <HomePage />;
     }
   };
 
@@ -155,7 +138,7 @@ const App: React.FC = () => {
       <Sidebar 
         projects={projects} 
         activeProjectId={activeProjectId} 
-        onSelectProject={setActiveProjectId} 
+        onSelectProject={setActiveProjectId}
         activeView={activeView}
         onSelectView={setActiveView}
         onOpenSettings={() => setIsSettingsOpen(true)}
@@ -199,7 +182,10 @@ const App: React.FC = () => {
             modularity={modularity}
             setModularity={setModularity}
             projects={projects}
-            setProjects={setProjects as any}
+            setProjects={() => {
+              // Projects are now managed through HomePage and ProjectContext
+              // This prop is kept for backward compatibility with SettingsModal
+            }}
           />
         )}
       </AnimatePresence>
@@ -229,6 +215,14 @@ const App: React.FC = () => {
 
       <ToastSystem toasts={toasts} onRemove={removeToast} />
     </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <ProjectProvider>
+      <AppContent />
+    </ProjectProvider>
   );
 };
 
