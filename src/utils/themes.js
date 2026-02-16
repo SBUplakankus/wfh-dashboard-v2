@@ -1,16 +1,16 @@
 const baseTheme = {
   colors: {
-    primary: '#4f7cff',
-    secondary: '#6b93ff',
-    tertiary: '#89a9ff',
-    background: { primary: '#0c0d10', secondary: '#121419' },
-    text: { primary: '#e6e8ec', secondary: '#9aa3b2' },
-    border: '#262b36'
+    primary: '#3b82f6',
+    secondary: '#60a5fa',
+    tertiary: '#93c5fd',
+    background: { primary: '#0A0E27', secondary: '#1a202c' },
+    text: { primary: '#f1f5f9', secondary: '#94a3b8' },
+    border: '#334155'
   },
   gradients: {
-    header: { type: 'linear', angle: 180, stops: ['#121419', '#121419'] },
-    section: { type: 'linear', angle: 180, stops: ['#121419', '#121419'] },
-    background: { type: 'linear', angle: 180, stops: ['#0c0d10', '#0c0d10'] }
+    header: { type: 'linear', angle: 180, stops: ['#1a202c', '#1a202c'] },
+    section: { type: 'linear', angle: 180, stops: ['#1a202c', '#1a202c'] },
+    background: { type: 'linear', angle: 180, stops: ['#0A0E27', '#0A0E27'] }
   },
   typography: { fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif', baseFontSize: 14, headingMultiplier: 1.2, lineHeight: 1.55 },
   layout: { sidebarWidth: 200, spacing: 24, borderRadius: 7, transitionSpeed: 'normal', tileStyle: 'solid' }

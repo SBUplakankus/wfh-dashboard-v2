@@ -9,7 +9,7 @@ const ThemeCustomizer = () => {
   const layout = theme?.layout || {};
   const typography = theme?.typography || {};
   const gradients = theme?.gradients || {};
-  const backgroundGradient = gradients.background || { type: 'linear', angle: 180, stops: [background.primary || '#0a0e27', background.secondary || '#1a202c'] };
+  const backgroundGradient = gradients.background || { type: 'linear', angle: 180, stops: [background.primary || '#0A0E27', background.secondary || '#1a202c'] };
 
   const updateTheme = (next: any) =>
     setTheme({
@@ -91,7 +91,7 @@ const ThemeCustomizer = () => {
         ))}
       </div>
       <div className="rounded-lg border border-md3-outline bg-md3-surface-variant p-3 text-xs text-md3-on-surface-variant">
-        SAMPLE presentation guide: keep accent usage restrained, prefer subtle borders over shadows, and maintain an 8px spacing rhythm.
+        SAMPLE presentation guide: keep accent usage restrained, prefer subtle borders over shadows, and use a consistent spacing rhythm.
       </div>
     </div>
   );
