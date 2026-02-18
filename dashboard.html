@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hub</title>
+<title>WorkHub</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
@@ -46,6 +46,10 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 .proj-del svg { width: 13px; height: 13px; stroke-width: 2; }
 .proj-item:hover .proj-del { opacity: 1; }
 .proj-del:hover { color: var(--red) !important; }
+.proj-edit { opacity: 0; color: var(--text3); cursor: pointer; display: flex; transition: opacity 0.15s, color 0.15s; flex-shrink: 0; }
+.proj-edit svg { width: 13px; height: 13px; stroke-width: 2; }
+.proj-item:hover .proj-edit { opacity: 1; }
+.proj-edit:hover { color: var(--accent) !important; }
 
 .nav-item { display: flex; align-items: center; gap: 8px; padding: 7px 9px; border-radius: 6px; cursor: pointer; color: var(--text2); font-size: 13px; font-weight: 500; transition: background 0.15s, color 0.15s; user-select: none; flex-shrink: 0; }
 .nav-item:hover { background: var(--bg3); color: var(--text); }
@@ -521,8 +525,14 @@ function renderSidebar(){
   DB.projects.forEach(p=>{
     const el=document.createElement('div');
     el.className='proj-item'+(p.id===active?' active':'');
-    el.innerHTML=`<div class="proj-dot" style="background:${DOT[p.color]||'var(--accent)'}"></div><div class="proj-name">${esc(p.name)}</div>${p.workMode?`<span class="proj-badge">work</span>`:''}<div class="proj-del" onclick="event.stopPropagation();delProj('${p.id}')"><i data-lucide="x"></i></div>`;
-    el.onclick=()=>{ active=p.id; calView='today'; render(); };
+    el.dataset.id=p.id;
+    el.innerHTML=`<div class="proj-dot" style="background:${DOT[p.color]||'var(--accent)'}"></div><div class="proj-name">${esc(p.name)}</div>${p.workMode?`<span class="proj-badge">work</span>`:''}<div class="proj-edit" data-action="edit"><i data-lucide="pencil"></i></div><div class="proj-del" data-action="del"><i data-lucide="x"></i></div>`;
+    el.addEventListener('click', e=>{
+      const action=e.target.closest('[data-action]')?.dataset?.action;
+      if(action==='del'){ e.stopPropagation(); delProj(p.id); }
+      else if(action==='edit'){ e.stopPropagation(); editProject(p.id); }
+      else { active=p.id; calView='today'; render(); }
+    });
     list.appendChild(el);
   });
 }
@@ -556,12 +566,9 @@ function renderMain(){
     const s2=document.createElement('div'); r1.appendChild(s2);
     buildLinksCard(p, s1);
     buildTasksCard(p, s2);
-    // Row 2: Notes (full width or half if no notes)
-    const r2=document.createElement('div'); r2.className='card-row cols-2'; mc.appendChild(r2);
-    const s3=document.createElement('div'); r2.appendChild(s3);
-    buildNotesCard(p, s3);
-    // Empty spacer so notes don't stretch oddly
-    const s4=document.createElement('div'); r2.appendChild(s4);
+    // Row 2: Notes full-width
+    const r2=document.createElement('div'); r2.className='card-row'; mc.appendChild(r2);
+    buildNotesCard(p, r2);
   }
 }
 
@@ -630,7 +637,7 @@ function buildLinksCard(p, slot){
   (p.folders||[]).forEach(f=>{
     const el=document.createElement('div'); el.className='folder-tile';
     el.innerHTML=`<div class="tile-del" onclick="event.stopPropagation();delFolder('${f.id}')"><i data-lucide="x"></i></div><i data-lucide="folder-open"></i><div class="folder-tile-name">${esc(f.name)}</div>`;
-    el.onclick=()=>openURL(f.path); grid.appendChild(el);
+    el.onclick=()=>openFolder(f.path); grid.appendChild(el);
   });
   const add=document.createElement('div'); add.className='add-tile';
   add.innerHTML='<i data-lucide="plus"></i><span>Add</span>'; add.onclick=()=>openLinkModal(); grid.appendChild(add);
@@ -675,6 +682,7 @@ function buildNotesCard(p, slot){
 
 // ── Actions ───────────────────────────────────────────────────────────────
 function openURL(url){ if(!url) return; if(window.require){ try{ window.require('electron').shell.openExternal(url); return; }catch(e){} } window.open(url,'_blank'); }
+function openFolder(p){ if(!p) return; if(window.require){ try{ window.require('electron').shell.openPath(p); return; }catch(e){} } window.open('file://'+p,'_blank'); }
 function openKanri(){ const path=DB.settings.kanriPath; if(!path){ openOv('ov-settings'); return; } openURL(path); }
 function openJoplin(){ const p=ga(), nb=p?.joplin?`joplin://x-callback-url/openNote?notebook=${encodeURIComponent(p.joplin)}`:'joplin://'; openURL(nb); }
 function setCalView(v){ calView=v; render(); }
@@ -685,6 +693,7 @@ function delLink(id){ const p=ga(); if(!p) return; p.links=p.links.filter(l=>l.i
 function delFolder(id){ const p=ga(); if(!p) return; p.folders=(p.folders||[]).filter(f=>f.id!==id); save(); render(); }
 function delEvent(id){ const p=ga(); if(!p) return; p.events=p.events.filter(e=>e.id!==id); save(); render(); }
 function delNote(id){ const p=ga(); if(!p) return; p.notes=p.notes.filter(n=>n.id!==id); save(); render(); }
+function editProject(id){ const p=DB.projects.find(p=>p.id===id); if(!p) return; editProj=id; document.getElementById('proj-name').value=p.name; document.getElementById('proj-joplin').value=p.joplin||''; document.getElementById('proj-work').checked=!!p.workMode; document.getElementById('proj-h').textContent='Edit Project'; document.getElementById('proj-folder-list').innerHTML=''; pickCol=p.color||'amber'; document.querySelectorAll('#proj-dots .cdot').forEach(d=>d.classList.toggle('sel',d.dataset.c===pickCol)); (p.folders||[]).forEach(f=>addFolderEntry(f.name,f.path)); openOv('ov-proj'); }
 function delProj(id){ if(!confirm('Delete this project?')) return; DB.projects=DB.projects.filter(p=>p.id!==id); if(active===id) active=DB.projects[0]?.id||null; save(); render(); }
 
 // ICS

@@ -1,0 +1,36 @@
+{
+  "name": "workhub-dashboard",
+  "version": "1.0.0",
+  "description": "Clean dashboard for work and personal projects — runs as a Windows desktop app via Electron",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win portable",
+    "dist": "electron-builder --win --x64",
+    "test": "node --check main.js && echo Syntax OK"
+  },
+  "devDependencies": {
+    "electron": "^33.4.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.workhub.dashboard",
+    "productName": "WorkHub",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dashboard.html",
+      "main.js",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ]
+    }
+  }
+}
