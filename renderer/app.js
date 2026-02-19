@@ -14,6 +14,7 @@ const DOT = {
 };
 
 const BAR   = ['#f0a843','#5a9ef5','#5acc8a','#a78bfa','#e05a5a','#22d3ee','#f472b6','#fb923c'];
+function meetingColor(title){ let h=0; for(let i=0;i<title.length;i++) h=(h*31+title.charCodeAt(i))>>>0; return BAR[h%BAR.length]; }
 const ICONS = ['globe','link','github','figma','code-2','terminal','folder','database','monitor','smartphone','mail','book','youtube','music','image','box','cloud','coffee','settings','send','layers','trello','slack','pen-tool'];
 
 let DB       = { projects:[], settings:{ accent:'#f0a843', font:'Syne', kanriPath:'', joplinPath:'' } };
@@ -47,6 +48,7 @@ function seed(){
 function np(name,color,workMode){ return {id:uid(),name,color,workMode:!!workMode,joplin:'',links:[],tasks:[],notes:[],events:[],folders:[]}; }
 function uid(){ return Math.random().toString(36).slice(2,9); }
 function ds(){ return new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
+function localDateStr(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 function ga(){ return DB.projects.find(p=>p.id===active); }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function ri(){ if(window.lucide) lucide.createIcons(); }
@@ -143,8 +145,9 @@ function buildMeetingsCard(p, slot){
   // ICS input
   const icsInp=document.createElement('input'); icsInp.type='file'; icsInp.id='ics-inp'; icsInp.accept='.ics'; icsInp.style.display='none'; icsInp.onchange=importICS; card.appendChild(icsInp);
 
-  const todayEvs=(p.events||[]).filter(e=>e.isToday||e.dayLabel==='Today');
-  const allEvs=p.events||[];
+  const todayStr=localDateStr(new Date());
+  const todayEvs=(p.events||[]).filter(e=>e.dateStr?e.dateStr===todayStr:(e.isToday||e.dayLabel==='Today')).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+  const upcomingEvs=(p.events||[]).filter(e=>e.dateStr?e.dateStr>todayStr:(!e.isToday&&e.dayLabel&&e.dayLabel!=='Today')).sort((a,b)=>{ const da=a.dateStr||'zzz',db=b.dateStr||'zzz'; return da!==db?(da<db?-1:1):(a.time||'').localeCompare(b.time||''); });
 
   if(calView==='today'){
     if(!todayEvs.length){
@@ -152,23 +155,23 @@ function buildMeetingsCard(p, slot){
     } else {
       todayEvs.forEach(ev=>{
         const nowMark=isNowBetween(ev.time,ev.endTime);
+        const col=meetingColor(ev.title);
         const el=document.createElement('div'); el.className='meeting-row'+(nowMark?' now':'');
-        el.innerHTML=`<div class="meeting-time-block"><div class="meeting-time">${esc(ev.time||'')}</div>${ev.endTime?`<div class="meeting-end">${esc(ev.endTime)}</div>`:''}</div><div class="meeting-divider"></div><div class="meeting-info"><div class="meeting-title">${esc(ev.title)}</div>${ev.note?`<div class="meeting-sub">${esc(ev.note)}</div>`:''}</div>${nowMark?`<div class="meeting-now-pill">Now</div>`:''} ${ev.joinUrl?`<button class="join-btn" onclick="openURL('${esc(ev.joinUrl)}')"><i data-lucide="video"></i> Join</button>`:''}<div class="meeting-del" onclick="delEvent('${ev.id}')"><i data-lucide="x"></i></div>`;
+        el.innerHTML=`<div class="meeting-time-block"><div class="meeting-time">${esc(ev.time||'')}</div>${ev.endTime?`<div class="meeting-end">${esc(ev.endTime)}</div>`:''}</div><div class="meeting-divider" style="background:${col}"></div><div class="meeting-info"><div class="meeting-title">${esc(ev.title)}</div>${ev.note?`<div class="meeting-sub">${esc(ev.note)}</div>`:''}</div>${nowMark?`<div class="meeting-now-pill">Now</div>`:''} ${ev.joinUrl?`<button class="join-btn" onclick="openURL('${esc(ev.joinUrl)}')"><i data-lucide="video"></i> Join</button>`:''}<div class="meeting-del" onclick="delEvent('${ev.id}')"><i data-lucide="x"></i></div>`;
         body.appendChild(el);
       });
     }
   } else {
-    if(!allEvs.length){
+    if(!upcomingEvs.length){
       const em=document.createElement('div'); em.className='empty'; em.textContent='No upcoming events'; body.appendChild(em);
     } else {
-      const groups={};
-      allEvs.forEach(ev=>{ const k=ev.dayLabel||'Later'; if(!groups[k]) groups[k]=[]; groups[k].push(ev); });
-      let bi=0;
-      Object.entries(groups).forEach(([day,evs])=>{
+      const groups=new Map();
+      upcomingEvs.forEach(ev=>{ const k=ev.dateStr?dayLabel(new Date(ev.dateStr+'T12:00:00')):(ev.dayLabel||'Later'); if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(ev); });
+      groups.forEach((evs,day)=>{
         const lbl=document.createElement('div'); lbl.className='ev-day'; lbl.textContent=day; body.appendChild(lbl);
         evs.forEach(ev=>{
           const el=document.createElement('div'); el.className='ev-row';
-          el.innerHTML=`<div class="ev-time">${esc(ev.time||'')}</div><div class="ev-bar" style="background:${BAR[bi++%BAR.length]}"></div><div class="ev-body"><div class="ev-title">${esc(ev.title)}</div>${ev.note?`<div class="ev-sub">${esc(ev.note)}</div>`:''}</div>${ev.joinUrl?`<div class="ev-join" onclick="openURL('${esc(ev.joinUrl)}')"><i data-lucide="video"></i> Join</div>`:''}<div class="evdel" onclick="delEvent('${ev.id}')"><i data-lucide="x"></i></div>`;
+          el.innerHTML=`<div class="ev-time">${esc(ev.time||'')}</div><div class="ev-bar" style="background:${meetingColor(ev.title)}"></div><div class="ev-body"><div class="ev-title">${esc(ev.title)}</div>${ev.note?`<div class="ev-sub">${esc(ev.note)}</div>`:''}</div>${ev.joinUrl?`<div class="ev-join" onclick="openURL('${esc(ev.joinUrl)}')"><i data-lucide="video"></i> Join</div>`:''}<div class="evdel" onclick="delEvent('${ev.id}')"><i data-lucide="x"></i></div>`;
           body.appendChild(el);
         });
       });
@@ -267,25 +270,26 @@ function triggerICS(){ document.getElementById('ics-inp')?.click(); }
 function importICS(e){
   const file=e.target.files[0]; if(!file) return;
   const reader=new FileReader();
-  reader.onload=ev=>{ const evs=parseICS(ev.target.result); const p=ga(); if(!p) return; evs.forEach(ev=>p.events.push(ev)); save(); render(); e.target.value=''; };
+  reader.onload=ev=>{ const evs=parseICS(ev.target.result); const p=ga(); if(!p) return; p.events=evs; save(); render(); e.target.value=''; };
   reader.readAsText(file);
 }
 function parseICS(text){
-  const out=[],now=new Date(),soon=new Date(now.getTime()+60*24*60*60*1000);
+  const out=[],now=new Date(),todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate()),soon=new Date(now.getTime()+60*24*60*60*1000);
   text.split('BEGIN:VEVENT').slice(1).forEach(block=>{
-    const get=k=>{ const m=block.match(new RegExp(`${k}[^:]*:([^\r\n]+)`)); return m?m[1].trim():''; };
-    const summary=get('SUMMARY'),dtstart=get('DTSTART'),dtend=get('DTEND'),location=get('LOCATION'),desc=get('DESCRIPTION'),urlF=get('^URL');
+    const get=k=>{ const m=block.match(new RegExp(`(?:^|[\\r\\n])${k}[^:]*:([^\\r\\n]+)`)); return m?m[1].trim():''; };
+    const summary=get('SUMMARY'),dtstart=get('DTSTART'),dtend=get('DTEND'),location=get('LOCATION'),desc=get('DESCRIPTION'),urlF=get('URL');
     if(!summary||!dtstart) return;
-    const startDate=icsDate(dtstart); if(!startDate||startDate<now||startDate>soon) return;
+    const startDate=icsDate(dtstart); if(!startDate||startDate<todayStart||startDate>soon) return;
     const endDate=dtend?icsDate(dtend):null;
     const dl=dayLabel(startDate),isToday=dl==='Today';
     const joinUrl=urlF||extractURL(desc)||extractURL(location)||'';
-    out.push({id:uid(),title:summary,dayLabel:dl,isToday,time:fmtTime(startDate,dtstart),endTime:endDate?fmtTime(endDate,dtend):'',joinUrl,note:location||''});
+    const dateStr=localDateStr(startDate);
+    out.push({id:uid(),title:summary,dateStr,dayLabel:dl,isToday,time:fmtTime(startDate,dtstart),endTime:endDate?fmtTime(endDate,dtend):'',joinUrl,note:location||''});
   });
   return out;
 }
 function extractURL(s){ if(!s) return ''; const m=s.match(/https?:\/\/[^\s<>"\\]+/); return m?m[0]:''; }
-function icsDate(s){ const c=s.replace(/[TZ]/g,''); if(c.length<8) return null; return new Date(`${c.slice(0,4)}-${c.slice(4,6)}-${c.slice(6,8)}T${c.slice(8,10)||'00'}:${c.slice(10,12)||'00'}:00`); }
+function icsDate(s){ const isUTC=s.endsWith('Z'); const c=s.replace(/[TZ]/g,''); if(c.length<8) return null; return new Date(`${c.slice(0,4)}-${c.slice(4,6)}-${c.slice(6,8)}T${c.slice(8,10)||'00'}:${c.slice(10,12)||'00'}:00${isUTC?'Z':''}`); }
 function dayLabel(d){ const now=new Date(),today=new Date(now.getFullYear(),now.getMonth(),now.getDate()),day=new Date(d.getFullYear(),d.getMonth(),d.getDate()),diff=Math.round((day-today)/86400000); if(diff===0) return 'Today'; if(diff===1) return 'Tomorrow'; if(diff<7) return d.toLocaleDateString('en-US',{weekday:'long'}); return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
 function fmtTime(d,raw){ if(!raw||raw.length<=8) return 'All day'; return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}); }
 function isNowBetween(s,e){ if(!s) return false; try{ const parse=str=>{ const m=str.match(/(\d+):(\d+)\s*(AM|PM)?/i); if(!m) return null; let h=parseInt(m[1]),mn=parseInt(m[2]); const ap=(m[3]||'').toUpperCase(); if(ap==='PM'&&h!==12) h+=12; if(ap==='AM'&&h===12) h=0; return h*60+mn; }; const now=new Date(),nm=now.getHours()*60+now.getMinutes(),st=parse(s),en=e?parse(e):st+60; return st!==null&&nm>=st&&nm<=(en||st+60); }catch(e){ return false; } }
@@ -340,7 +344,7 @@ function saveEvent(){
   const note=document.getElementById('ev-n').value.trim();
   const p=ga(); if(!p) return;
   const parts=timeStr.split(/[-–—]+/).map(s=>s.trim());
-  p.events.push({id:uid(),title,dayLabel:'Today',isToday:true,time:parts[0]||'',endTime:parts[1]||'',joinUrl,note});
+  p.events.push({id:uid(),title,dateStr:localDateStr(new Date()),dayLabel:'Today',isToday:true,time:parts[0]||'',endTime:parts[1]||'',joinUrl,note});
   save(); closeOv('ov-event'); render();
 }
 
