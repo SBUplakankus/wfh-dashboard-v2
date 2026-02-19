@@ -153,9 +153,9 @@ function buildMeetingsCard(p, slot){
   const icsInp=document.createElement('input'); icsInp.type='file'; icsInp.id='ics-inp'; icsInp.accept='.ics'; icsInp.style.display='none'; icsInp.onchange=importICS; card.appendChild(icsInp);
 
   const todayStr=localDateStr(new Date());
-  const _wn=new Date(),_dts=(7-_wn.getDay())%7,endOfWeekStr=localDateStr(new Date(_wn.getFullYear(),_wn.getMonth(),_wn.getDate()+_dts));
+  const _wn=new Date(),_dts=(7-_wn.getDay())%7||7,endOfWeekStr=localDateStr(new Date(_wn.getFullYear(),_wn.getMonth(),_wn.getDate()+_dts));
   const todayEvs=(p.events||[]).filter(e=>e.dateStr?e.dateStr===todayStr:(e.isToday||e.dayLabel==='Today')).sort((a,b)=>parseMinutes(a.time)-parseMinutes(b.time));
-  const upcomingEvs=(p.events||[]).filter(e=>e.dateStr?e.dateStr>=todayStr&&e.dateStr<=endOfWeekStr:(!e.isToday&&e.dayLabel&&e.dayLabel!=='Today')).sort((a,b)=>{ const da=a.dateStr||'zzz',db=b.dateStr||'zzz'; return da!==db?(da<db?-1:1):parseMinutes(a.time)-parseMinutes(b.time); });
+  const upcomingEvs=(p.events||[]).filter(e=>e.dateStr?e.dateStr>todayStr&&e.dateStr<=endOfWeekStr:(!e.isToday&&e.dayLabel&&e.dayLabel!=='Today')).sort((a,b)=>{ const da=a.dateStr||'zzz',db=b.dateStr||'zzz'; return da!==db?(da<db?-1:1):parseMinutes(a.time)-parseMinutes(b.time); });
 
   if(calView==='today'){
     if(!todayEvs.length){
@@ -283,18 +283,64 @@ function importICS(e){
   reader.readAsText(file);
 }
 function parseICS(text){
-  const out=[],now=new Date(),todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate()),_d2s=(7-now.getDay())%7,soon=new Date(now.getFullYear(),now.getMonth(),now.getDate()+_d2s+1);
+  const out=[];
+  const now=new Date(),todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  const windowEnd=new Date(todayStart); windowEnd.setDate(windowEnd.getDate()+60);
+  const DAY_MAP={MO:1,TU:2,WE:3,TH:4,FR:5,SA:6,SU:0};
+
   text.split('BEGIN:VEVENT').slice(1).forEach(block=>{
     const unfolded=block.replace(/\r?\n[ \t]/g,'');
     const get=k=>{ const m=unfolded.match(new RegExp(`(?:^|[\\r\\n])${k}[^:]*:([^\\r\\n]+)`)); return m?m[1].trim():''; };
-    const summary=get('SUMMARY'),dtstart=get('DTSTART'),dtend=get('DTEND'),location=get('LOCATION'),desc=get('DESCRIPTION'),urlF=get('URL');
+    const summary=get('SUMMARY'),dtstart=get('DTSTART'),dtend=get('DTEND'),location=get('LOCATION'),desc=get('DESCRIPTION'),urlF=get('URL'),rruleStr=get('RRULE');
     if(!summary||!dtstart) return;
-    const startDate=icsDate(dtstart); if(!startDate||startDate<todayStart||startDate>soon) return;
+    const startDate=icsDate(dtstart); if(!startDate) return;
     const endDate=dtend?icsDate(dtend):null;
-    const dl=dayLabel(startDate),isToday=dl==='Today';
+    const durationMs=endDate?endDate-startDate:0;
     const joinUrl=urlF||extractURL(desc)||extractURL(location)||'';
-    const dateStr=localDateStr(startDate);
-    out.push({id:uid(),title:summary,dateStr,dayLabel:dl,isToday,time:fmtTime(startDate,dtstart),endTime:endDate?fmtTime(endDate,dtend):'',joinUrl,note:location||''});
+    const note=location||'';
+
+    // Parse EXDATEs
+    const exdates=new Set();
+    const exRe=/(?:^|[\r\n])EXDATE[^:]*:([^\r\n]+)/g; let em;
+    while((em=exRe.exec(unfolded))!==null){ em[1].trim().split(',').forEach(s=>{ const d=icsDate(s.trim()); if(d) exdates.add(localDateStr(d)); }); }
+
+    function pushEvent(occStart){
+      if(occStart<todayStart||occStart>windowEnd) return;
+      const ds=localDateStr(occStart); if(exdates.has(ds)) return;
+      const occEnd=durationMs?new Date(occStart.getTime()+durationMs):null;
+      const dl=dayLabel(occStart),isToday=dl==='Today';
+      out.push({id:uid(),title:summary,dateStr:ds,dayLabel:dl,isToday,time:fmtTime(occStart,dtstart),endTime:occEnd?fmtTime(occEnd,dtend):'',joinUrl,note});
+    }
+
+    if(!rruleStr||!rruleStr.includes('FREQ=WEEKLY')){
+      pushEvent(startDate); return;
+    }
+
+    // Parse RRULE parts
+    const rp={}; rruleStr.split(';').forEach(p=>{ const [k,v]=p.split('='); rp[k]=v; });
+    const interval=parseInt(rp.INTERVAL||'1');
+    const bydays=(rp.BYDAY||'').split(',').map(d=>DAY_MAP[d.trim().replace(/[^A-Z]/g,'')]).filter(d=>d!==undefined);
+    const until=rp.UNTIL?icsDate(rp.UNTIL):null;
+    const effectiveEnd=until&&until<windowEnd?until:windowEnd;
+
+    // Find the Monday of the week containing DTSTART
+    const cur=new Date(startDate); cur.setHours(0,0,0,0);
+    // Walk week by week from start
+    const weekStart=new Date(cur); weekStart.setDate(weekStart.getDate()-weekStart.getDay()+1); // Monday
+    for(let w=new Date(weekStart);w<=effectiveEnd;w.setDate(w.getDate()+7*interval)){
+      if(bydays.length===0){
+        const occ=new Date(w); occ.setHours(startDate.getHours(),startDate.getMinutes(),startDate.getSeconds());
+        if(occ>=startDate) pushEvent(occ);
+      } else {
+        bydays.forEach(dow=>{
+          // Find the date in this week with day-of-week = dow (0=Sun,1=Mon,...)
+          const diff=(dow-1+7)%7; // offset from Monday
+          const occ=new Date(w); occ.setDate(w.getDate()+diff);
+          occ.setHours(startDate.getHours(),startDate.getMinutes(),startDate.getSeconds());
+          if(occ>=startDate&&(!until||occ<=until)) pushEvent(occ);
+        });
+      }
+    }
   });
   return out;
 }
@@ -366,4 +412,4 @@ function saveNote(){ const title=document.getElementById('n-title').value.trim()
 // Clock
 function tick(){ const now=new Date(); document.getElementById('clock').textContent=now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false}); document.getElementById('cdate').textContent=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}); }
 
-load(); render(); tick(); setInterval(tick,1000);
+load(); render(); tick(); setInterval(tick,10000);
