@@ -32,9 +32,9 @@ function seed(){
   work.links=[{id:uid(),icon:'github',name:'GitHub',url:'https://github.com'},{id:uid(),icon:'figma',name:'Figma',url:'https://figma.com'},{id:uid(),icon:'mail',name:'Gmail',url:'https://mail.google.com'}];
   work.tasks=[{id:uid(),text:'Import your .ics calendar file',done:false},{id:uid(),text:'Connect Kanri in settings',done:false}];
   work.events=[
-    {id:uid(),title:'Morning standup',time:'9:00 AM',endTime:'9:15 AM',joinUrl:'https://meet.google.com',note:'Daily sync',dayLabel:'Today',isToday:true},
-    {id:uid(),title:'Design review',time:'2:00 PM',endTime:'3:00 PM',joinUrl:'https://meet.google.com',note:'Figma handoff',dayLabel:'Today',isToday:true},
-    {id:uid(),title:'Sprint planning',time:'10:00 AM',endTime:'11:00 AM',joinUrl:'',note:'',dayLabel:'Tomorrow',isToday:false},
+    {id:uid(),title:'Morning standup',time:'9:00 AM',endTime:'9:15 AM',joinUrl:'https://meet.google.com',note:'Daily sync',dateStr:localDateStr(new Date()),dayLabel:'Today',isToday:true},
+    {id:uid(),title:'Design review',time:'2:00 PM',endTime:'3:00 PM',joinUrl:'https://meet.google.com',note:'Figma handoff',dateStr:localDateStr(new Date()),dayLabel:'Today',isToday:true},
+    {id:uid(),title:'Sprint planning',time:'10:00 AM',endTime:'11:00 AM',joinUrl:'',note:'',dateStr:localDateStr(new Date(Date.now()+86400000)),dayLabel:'Tomorrow',isToday:false},
   ];
   work.folders=[{id:uid(),name:'Docs',path:'C:\\Users\\Dev\\Documents\\Work'}];
 
@@ -51,6 +51,10 @@ function ds(){ return new Date().toLocaleDateString('en-US',{month:'short',day:'
 function localDateStr(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 function ga(){ return DB.projects.find(p=>p.id===active); }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+// escJS: escapes a value for use inside a single-quoted JS string within an HTML onclick attribute.
+// Must be combined with esc() — use esc(escJS(val)) — so both the JS context (\, ') and the HTML
+// attribute context (&, <, >, ") are correctly escaped.
+function escJS(s){ return String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
 function ri(){ if(window.lucide) lucide.createIcons(); }
 
 // Theme
@@ -157,7 +161,7 @@ function buildMeetingsCard(p, slot){
         const nowMark=isNowBetween(ev.time,ev.endTime);
         const col=meetingColor(ev.title);
         const el=document.createElement('div'); el.className='meeting-row'+(nowMark?' now':'');
-        el.innerHTML=`<div class="meeting-time-block"><div class="meeting-time">${esc(ev.time||'')}</div>${ev.endTime?`<div class="meeting-end">${esc(ev.endTime)}</div>`:''}</div><div class="meeting-divider" style="background:${col}"></div><div class="meeting-info"><div class="meeting-title">${esc(ev.title)}</div>${ev.note?`<div class="meeting-sub">${esc(ev.note)}</div>`:''}</div>${nowMark?`<div class="meeting-now-pill">Now</div>`:''} ${ev.joinUrl?`<button class="join-btn" onclick="openURL('${esc(ev.joinUrl)}')"><i data-lucide="video"></i> Join</button>`:''}<div class="meeting-del" onclick="delEvent('${ev.id}')"><i data-lucide="x"></i></div>`;
+        el.innerHTML=`<div class="meeting-time-block"><div class="meeting-time">${esc(ev.time||'')}</div>${ev.endTime?`<div class="meeting-end">${esc(ev.endTime)}</div>`:''}</div><div class="meeting-divider" style="background:${col}"></div><div class="meeting-info"><div class="meeting-title">${esc(ev.title)}</div>${ev.note?`<div class="meeting-sub">${esc(ev.note)}</div>`:''}</div>${nowMark?`<div class="meeting-now-pill">Now</div>`:''} ${ev.joinUrl?`<button class="join-btn" onclick="openURL('${esc(escJS(ev.joinUrl))}')"><i data-lucide="video"></i> Join</button>`:''}<div class="meeting-del" onclick="delEvent('${ev.id}')"><i data-lucide="x"></i></div>`;
         body.appendChild(el);
       });
     }
@@ -171,7 +175,7 @@ function buildMeetingsCard(p, slot){
         const lbl=document.createElement('div'); lbl.className='ev-day'; lbl.textContent=day; body.appendChild(lbl);
         evs.forEach(ev=>{
           const el=document.createElement('div'); el.className='ev-row';
-          el.innerHTML=`<div class="ev-time">${esc(ev.time||'')}</div><div class="ev-bar" style="background:${meetingColor(ev.title)}"></div><div class="ev-body"><div class="ev-title">${esc(ev.title)}</div>${ev.note?`<div class="ev-sub">${esc(ev.note)}</div>`:''}</div>${ev.joinUrl?`<div class="ev-join" onclick="openURL('${esc(ev.joinUrl)}')"><i data-lucide="video"></i> Join</div>`:''}<div class="evdel" onclick="delEvent('${ev.id}')"><i data-lucide="x"></i></div>`;
+          el.innerHTML=`<div class="ev-time">${esc(ev.time||'')}</div><div class="ev-bar" style="background:${meetingColor(ev.title)}"></div><div class="ev-body"><div class="ev-title">${esc(ev.title)}</div>${ev.note?`<div class="ev-sub">${esc(ev.note)}</div>`:''}</div>${ev.joinUrl?`<div class="ev-join" onclick="openURL('${esc(escJS(ev.joinUrl))}')"><i data-lucide="video"></i> Join</div>`:''}<div class="evdel" onclick="delEvent('${ev.id}')"><i data-lucide="x"></i></div>`;
           body.appendChild(el);
         });
       });
@@ -204,7 +208,7 @@ function buildLinksCard(p, slot){
     const list=document.createElement('div'); list.className='folder-dir-list'; sec.appendChild(list);
     folders.forEach(f=>{
       const row=document.createElement('div'); row.className='folder-dir-row';
-      row.innerHTML=`<div class="folder-dir-icon"><i data-lucide="folder-open"></i></div><div class="folder-dir-info"><div class="folder-dir-name">${esc(f.name)}</div><div class="folder-dir-path">${esc(f.path)}</div></div><button class="cbtn" onclick="event.stopPropagation();openFolder('${esc(f.path)}')"><i data-lucide="external-link"></i> Open</button><div class="fdel" onclick="event.stopPropagation();delFolder('${f.id}')"><i data-lucide="x"></i></div>`;
+      row.innerHTML=`<div class="folder-dir-icon"><i data-lucide="folder-open"></i></div><div class="folder-dir-info"><div class="folder-dir-name">${esc(f.name)}</div><div class="folder-dir-path">${esc(f.path)}</div></div><button class="cbtn" onclick="event.stopPropagation();openFolder('${esc(escJS(f.path))}')"><i data-lucide="external-link"></i> Open</button><div class="fdel" onclick="event.stopPropagation();delFolder('${f.id}')"><i data-lucide="x"></i></div>`;
       row.onclick=()=>openFolder(f.path);
       list.appendChild(row);
     });
@@ -271,6 +275,7 @@ function importICS(e){
   const file=e.target.files[0]; if(!file) return;
   const reader=new FileReader();
   reader.onload=ev=>{ const evs=parseICS(ev.target.result); const p=ga(); if(!p) return; p.events=evs; save(); render(); e.target.value=''; };
+  reader.onerror=()=>{ alert('Failed to read the .ics file. Please try again.'); e.target.value=''; };
   reader.readAsText(file);
 }
 function parseICS(text){
@@ -292,7 +297,7 @@ function extractURL(s){ if(!s) return ''; const m=s.match(/https?:\/\/[^\s<>"\\]
 function icsDate(s){ const isUTC=s.endsWith('Z'); const c=s.replace(/[TZ]/g,''); if(c.length<8) return null; return new Date(`${c.slice(0,4)}-${c.slice(4,6)}-${c.slice(6,8)}T${c.slice(8,10)||'00'}:${c.slice(10,12)||'00'}:00${isUTC?'Z':''}`); }
 function dayLabel(d){ const now=new Date(),today=new Date(now.getFullYear(),now.getMonth(),now.getDate()),day=new Date(d.getFullYear(),d.getMonth(),d.getDate()),diff=Math.round((day-today)/86400000); if(diff===0) return 'Today'; if(diff===1) return 'Tomorrow'; if(diff<7) return d.toLocaleDateString('en-US',{weekday:'long'}); return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
 function fmtTime(d,raw){ if(!raw||raw.length<=8) return 'All day'; return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}); }
-function isNowBetween(s,e){ if(!s) return false; try{ const parse=str=>{ const m=str.match(/(\d+):(\d+)\s*(AM|PM)?/i); if(!m) return null; let h=parseInt(m[1]),mn=parseInt(m[2]); const ap=(m[3]||'').toUpperCase(); if(ap==='PM'&&h!==12) h+=12; if(ap==='AM'&&h===12) h=0; return h*60+mn; }; const now=new Date(),nm=now.getHours()*60+now.getMinutes(),st=parse(s),en=e?parse(e):st+60; return st!==null&&nm>=st&&nm<=(en||st+60); }catch(e){ return false; } }
+function isNowBetween(s,e){ if(!s) return false; try{ const parse=str=>{ const m=str.match(/(\d+):(\d+)\s*(AM|PM)?/i); if(!m) return null; let h=parseInt(m[1]),mn=parseInt(m[2]); const ap=(m[3]||'').toUpperCase(); if(ap==='PM'&&h!==12) h+=12; if(ap==='AM'&&h===12) h=0; return h*60+mn; }; const now=new Date(),nm=now.getHours()*60+now.getMinutes(),st=parse(s),en=e?parse(e):st+60; return st!==null&&nm>=st&&nm<=(en||st+60); }catch(err){ return false; } }
 
 // Overlays
 function openOv(id){ document.getElementById(id).classList.add('open'); ri(); }
