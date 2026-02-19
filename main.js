@@ -1,7 +1,9 @@
 const { app, BrowserWindow, Menu } = require('electron')
 const path = require('path')
+const fs = require('fs')
 
 function createWindow() {
+  const iconPath = path.join(__dirname, 'assets', 'icon.png')
   const win = new BrowserWindow({
     width: 1440,
     height: 900,
@@ -9,6 +11,7 @@ function createWindow() {
     minHeight: 600,
     title: 'WorkHub',
     backgroundColor: '#0b0b0e',
+    icon: fs.existsSync(iconPath) ? iconPath : undefined,
     webPreferences: {
       // nodeIntegration is enabled intentionally: this is a local-only personal
       // tool with no remote content. The renderer loads a bundled HTML file and
