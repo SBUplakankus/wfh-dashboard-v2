@@ -14,16 +14,20 @@ const DOT = {
 };
 
 const BAR   = ['#f0a843','#5a9ef5','#5acc8a','#a78bfa','#e05a5a','#22d3ee','#f472b6','#fb923c'];
+function meetingColor(title){ let h=0; for(let i=0;i<title.length;i++) h=(h*31+title.charCodeAt(i))>>>0; return BAR[h%BAR.length]; }
 const ICONS = ['globe','link','github','figma','code-2','terminal','folder','database','monitor','smartphone','mail','book','youtube','music','image','box','cloud','coffee','settings','send','layers','trello','slack','pen-tool'];
 
-let DB       = { projects:[], settings:{ accent:'#f0a843', font:'Syne', kanriPath:'', joplinPath:'' } };
+let DB       = { projects:[], settings:{ accent:'#f0a843', font:'Syne', kanriPath:'', joplinPath:'', lastActive:null } };
 let active   = null, editNote = null, editProj = null, pickCol = 'amber', pickIcon = 'globe', calView = 'today';
 
 function save(){ localStorage.setItem('hub5', JSON.stringify(DB)); }
 function load(){
   try { const d=localStorage.getItem('hub5'); if(d) DB=JSON.parse(d); else seed(); }
   catch(e){ seed(); }
-  if(DB.projects.length) active=DB.projects[0].id;
+  if(DB.projects.length){
+    const last=DB.settings.lastActive;
+    active=(last&&DB.projects.find(p=>p.id===last))?last:DB.projects[0].id;
+  }
   applyTheme();
 }
 function seed(){
@@ -31,9 +35,9 @@ function seed(){
   work.links=[{id:uid(),icon:'github',name:'GitHub',url:'https://github.com'},{id:uid(),icon:'figma',name:'Figma',url:'https://figma.com'},{id:uid(),icon:'mail',name:'Gmail',url:'https://mail.google.com'}];
   work.tasks=[{id:uid(),text:'Import your .ics calendar file',done:false},{id:uid(),text:'Connect Kanri in settings',done:false}];
   work.events=[
-    {id:uid(),title:'Morning standup',time:'9:00 AM',endTime:'9:15 AM',joinUrl:'https://meet.google.com',note:'Daily sync',dayLabel:'Today',isToday:true},
-    {id:uid(),title:'Design review',time:'2:00 PM',endTime:'3:00 PM',joinUrl:'https://meet.google.com',note:'Figma handoff',dayLabel:'Today',isToday:true},
-    {id:uid(),title:'Sprint planning',time:'10:00 AM',endTime:'11:00 AM',joinUrl:'',note:'',dayLabel:'Tomorrow',isToday:false},
+    {id:uid(),title:'Morning standup',time:'9:00 AM',endTime:'9:15 AM',joinUrl:'https://meet.google.com',note:'Daily sync',dateStr:localDateStr(new Date()),dayLabel:'Today',isToday:true},
+    {id:uid(),title:'Design review',time:'2:00 PM',endTime:'3:00 PM',joinUrl:'https://meet.google.com',note:'Figma handoff',dateStr:localDateStr(new Date()),dayLabel:'Today',isToday:true},
+    {id:uid(),title:'Sprint planning',time:'10:00 AM',endTime:'11:00 AM',joinUrl:'',note:'',dateStr:localDateStr(new Date(Date.now()+86400000)),dayLabel:'Tomorrow',isToday:false},
   ];
   work.folders=[{id:uid(),name:'Docs',path:'C:\\Users\\Dev\\Documents\\Work'}];
 
@@ -47,8 +51,13 @@ function seed(){
 function np(name,color,workMode){ return {id:uid(),name,color,workMode:!!workMode,joplin:'',links:[],tasks:[],notes:[],events:[],folders:[]}; }
 function uid(){ return Math.random().toString(36).slice(2,9); }
 function ds(){ return new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
+function localDateStr(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 function ga(){ return DB.projects.find(p=>p.id===active); }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+// escJS: escapes a value for use inside a single-quoted JS string within an HTML onclick attribute.
+// Must be combined with esc() — use esc(escJS(val)) — so both the JS context (\, ') and the HTML
+// attribute context (&, <, >, ") are correctly escaped.
+function escJS(s){ return String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\r/g,'\\r').replace(/\n/g,'\\n').replace(/\u2028/g,'\\u2028').replace(/\u2029/g,'\\u2029'); }
 function ri(){ if(window.lucide) lucide.createIcons(); }
 
 // Theme
@@ -84,7 +93,7 @@ function renderSidebar(){
       const action=e.target.closest('[data-action]')?.dataset?.action;
       if(action==='del'){ e.stopPropagation(); delProj(p.id); }
       else if(action==='edit'){ e.stopPropagation(); editProject(p.id); }
-      else { active=p.id; calView='today'; render(); }
+      else { active=p.id; DB.settings.lastActive=p.id; calView='today'; save(); render(); }
     });
     list.appendChild(el);
   });
@@ -143,8 +152,10 @@ function buildMeetingsCard(p, slot){
   // ICS input
   const icsInp=document.createElement('input'); icsInp.type='file'; icsInp.id='ics-inp'; icsInp.accept='.ics'; icsInp.style.display='none'; icsInp.onchange=importICS; card.appendChild(icsInp);
 
-  const todayEvs=(p.events||[]).filter(e=>e.isToday||e.dayLabel==='Today');
-  const allEvs=p.events||[];
+  const todayStr=localDateStr(new Date());
+  const _wn=new Date(),_dts=(7-_wn.getDay())%7,endOfWeekStr=localDateStr(new Date(_wn.getFullYear(),_wn.getMonth(),_wn.getDate()+_dts));
+  const todayEvs=(p.events||[]).filter(e=>e.dateStr?e.dateStr===todayStr:(e.isToday||e.dayLabel==='Today')).sort((a,b)=>parseMinutes(a.time)-parseMinutes(b.time));
+  const upcomingEvs=(p.events||[]).filter(e=>e.dateStr?e.dateStr>=todayStr&&e.dateStr<=endOfWeekStr:(!e.isToday&&e.dayLabel&&e.dayLabel!=='Today')).sort((a,b)=>{ const da=a.dateStr||'zzz',db=b.dateStr||'zzz'; return da!==db?(da<db?-1:1):parseMinutes(a.time)-parseMinutes(b.time); });
 
   if(calView==='today'){
     if(!todayEvs.length){
@@ -152,23 +163,23 @@ function buildMeetingsCard(p, slot){
     } else {
       todayEvs.forEach(ev=>{
         const nowMark=isNowBetween(ev.time,ev.endTime);
+        const col=meetingColor(ev.title);
         const el=document.createElement('div'); el.className='meeting-row'+(nowMark?' now':'');
-        el.innerHTML=`<div class="meeting-time-block"><div class="meeting-time">${esc(ev.time||'')}</div>${ev.endTime?`<div class="meeting-end">${esc(ev.endTime)}</div>`:''}</div><div class="meeting-divider"></div><div class="meeting-info"><div class="meeting-title">${esc(ev.title)}</div>${ev.note?`<div class="meeting-sub">${esc(ev.note)}</div>`:''}</div>${nowMark?`<div class="meeting-now-pill">Now</div>`:''} ${ev.joinUrl?`<button class="join-btn" onclick="openURL('${esc(ev.joinUrl)}')"><i data-lucide="video"></i> Join</button>`:''}<div class="meeting-del" onclick="delEvent('${ev.id}')"><i data-lucide="x"></i></div>`;
+        el.innerHTML=`<div class="meeting-time-block"><div class="meeting-time">${esc(ev.time||'')}</div>${ev.endTime?`<div class="meeting-end">${esc(ev.endTime)}</div>`:''}</div><div class="meeting-divider" style="background:${col}"></div><div class="meeting-info"><div class="meeting-title">${esc(ev.title)}</div>${ev.note?`<div class="meeting-sub">${esc(ev.note)}</div>`:''}</div>${nowMark?`<div class="meeting-now-pill">Now</div>`:''} ${ev.joinUrl?`<button class="join-btn" onclick="openURL('${esc(escJS(ev.joinUrl))}')"><i data-lucide="video"></i> Join</button>`:''}<div class="meeting-del" onclick="delEvent('${ev.id}')"><i data-lucide="x"></i></div>`;
         body.appendChild(el);
       });
     }
   } else {
-    if(!allEvs.length){
+    if(!upcomingEvs.length){
       const em=document.createElement('div'); em.className='empty'; em.textContent='No upcoming events'; body.appendChild(em);
     } else {
-      const groups={};
-      allEvs.forEach(ev=>{ const k=ev.dayLabel||'Later'; if(!groups[k]) groups[k]=[]; groups[k].push(ev); });
-      let bi=0;
-      Object.entries(groups).forEach(([day,evs])=>{
+      const groups=new Map();
+      upcomingEvs.forEach(ev=>{ const k=ev.dateStr?dayLabel(new Date(ev.dateStr+'T12:00:00')):(ev.dayLabel||'Later'); if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(ev); });
+      groups.forEach((evs,day)=>{
         const lbl=document.createElement('div'); lbl.className='ev-day'; lbl.textContent=day; body.appendChild(lbl);
         evs.forEach(ev=>{
           const el=document.createElement('div'); el.className='ev-row';
-          el.innerHTML=`<div class="ev-time">${esc(ev.time||'')}</div><div class="ev-bar" style="background:${BAR[bi++%BAR.length]}"></div><div class="ev-body"><div class="ev-title">${esc(ev.title)}</div>${ev.note?`<div class="ev-sub">${esc(ev.note)}</div>`:''}</div>${ev.joinUrl?`<div class="ev-join" onclick="openURL('${esc(ev.joinUrl)}')"><i data-lucide="video"></i> Join</div>`:''}<div class="evdel" onclick="delEvent('${ev.id}')"><i data-lucide="x"></i></div>`;
+          el.innerHTML=`<div class="ev-time">${esc(ev.time||'')}</div><div class="ev-bar" style="background:${meetingColor(ev.title)}"></div><div class="ev-body"><div class="ev-title">${esc(ev.title)}</div>${ev.note?`<div class="ev-sub">${esc(ev.note)}</div>`:''}</div>${ev.joinUrl?`<div class="ev-join" onclick="openURL('${esc(escJS(ev.joinUrl))}')"><i data-lucide="video"></i> Join</div>`:''}<div class="evdel" onclick="delEvent('${ev.id}')"><i data-lucide="x"></i></div>`;
           body.appendChild(el);
         });
       });
@@ -201,7 +212,7 @@ function buildLinksCard(p, slot){
     const list=document.createElement('div'); list.className='folder-dir-list'; sec.appendChild(list);
     folders.forEach(f=>{
       const row=document.createElement('div'); row.className='folder-dir-row';
-      row.innerHTML=`<div class="folder-dir-icon"><i data-lucide="folder-open"></i></div><div class="folder-dir-info"><div class="folder-dir-name">${esc(f.name)}</div><div class="folder-dir-path">${esc(f.path)}</div></div><button class="cbtn" onclick="event.stopPropagation();openFolder('${esc(f.path)}')"><i data-lucide="external-link"></i> Open</button><div class="fdel" onclick="event.stopPropagation();delFolder('${f.id}')"><i data-lucide="x"></i></div>`;
+      row.innerHTML=`<div class="folder-dir-icon"><i data-lucide="folder-open"></i></div><div class="folder-dir-info"><div class="folder-dir-name">${esc(f.name)}</div><div class="folder-dir-path">${esc(f.path)}</div></div><button class="cbtn" onclick="event.stopPropagation();openFolder('${esc(escJS(f.path))}')"><i data-lucide="external-link"></i> Open</button><div class="fdel" onclick="event.stopPropagation();delFolder('${f.id}')"><i data-lucide="x"></i></div>`;
       row.onclick=()=>openFolder(f.path);
       list.appendChild(row);
     });
@@ -253,42 +264,46 @@ function openKanri(){ const kanriPath=DB.settings.kanriPath; if(!kanriPath){ ope
 function openJoplin(){ const p=ga(), nb=p?.joplin?`joplin://x-callback-url/openNote?notebook=${encodeURIComponent(p.joplin)}`:'joplin://'; openURL(nb); }
 function setCalView(v){ calView=v; render(); }
 function toggleTask(id){ const p=ga(); if(!p) return; const t=p.tasks.find(t=>t.id===id); if(t) t.done=!t.done; save(); render(); }
-function addTask(){ const i=document.getElementById('tinp'),txt=i?.value.trim(); if(!txt) return; const p=ga(); if(!p) return; p.tasks.push({id:uid(),text:txt,done:false}); save(); render(); }
+function addTask(){ const i=document.getElementById('tinp'),txt=i?.value.trim(); if(!txt) return; const p=ga(); if(!p) return; p.tasks.push({id:uid(),text:txt,done:false}); save(); render(); setTimeout(()=>{ const ni=document.getElementById('tinp'); if(ni) ni.focus(); },0); }
 function delTask(id){ const p=ga(); if(!p) return; p.tasks=p.tasks.filter(t=>t.id!==id); save(); render(); }
 function delLink(id){ const p=ga(); if(!p) return; p.links=p.links.filter(l=>l.id!==id); save(); render(); }
 function delFolder(id){ const p=ga(); if(!p) return; p.folders=(p.folders||[]).filter(f=>f.id!==id); save(); render(); }
 function delEvent(id){ const p=ga(); if(!p) return; p.events=p.events.filter(e=>e.id!==id); save(); render(); }
 function delNote(id){ const p=ga(); if(!p) return; p.notes=p.notes.filter(n=>n.id!==id); save(); render(); }
 function editProject(id){ const p=DB.projects.find(p=>p.id===id); if(!p) return; editProj=id; document.getElementById('proj-name').value=p.name; document.getElementById('proj-joplin').value=p.joplin||''; document.getElementById('proj-work').checked=!!p.workMode; document.getElementById('proj-h').textContent='Edit Project'; document.getElementById('proj-folder-list').innerHTML=''; pickCol=p.color||'amber'; document.querySelectorAll('#proj-dots .cdot').forEach(d=>d.classList.toggle('sel',d.dataset.c===pickCol)); (p.folders||[]).forEach(f=>addFolderEntry(f.name,f.path)); openOv('ov-proj'); }
-function delProj(id){ if(!confirm('Delete this project?')) return; DB.projects=DB.projects.filter(p=>p.id!==id); if(active===id) active=DB.projects[0]?.id||null; save(); render(); }
+function delProj(id){ if(!confirm('Delete this project?')) return; DB.projects=DB.projects.filter(p=>p.id!==id); if(active===id){ active=DB.projects[0]?.id||null; DB.settings.lastActive=active; } save(); render(); }
 
 // ICS
 function triggerICS(){ document.getElementById('ics-inp')?.click(); }
 function importICS(e){
   const file=e.target.files[0]; if(!file) return;
   const reader=new FileReader();
-  reader.onload=ev=>{ const evs=parseICS(ev.target.result); const p=ga(); if(!p) return; evs.forEach(ev=>p.events.push(ev)); save(); render(); e.target.value=''; };
+  reader.onload=ev=>{ const evs=parseICS(ev.target.result); const p=ga(); if(!p) return; p.events=evs; save(); render(); e.target.value=''; };
+  reader.onerror=()=>{ alert('Failed to read the .ics file. Please try again.'); e.target.value=''; };
   reader.readAsText(file);
 }
 function parseICS(text){
-  const out=[],now=new Date(),soon=new Date(now.getTime()+60*24*60*60*1000);
+  const out=[],now=new Date(),todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate()),_d2s=(7-now.getDay())%7,soon=new Date(now.getFullYear(),now.getMonth(),now.getDate()+_d2s+1);
   text.split('BEGIN:VEVENT').slice(1).forEach(block=>{
-    const get=k=>{ const m=block.match(new RegExp(`${k}[^:]*:([^\r\n]+)`)); return m?m[1].trim():''; };
-    const summary=get('SUMMARY'),dtstart=get('DTSTART'),dtend=get('DTEND'),location=get('LOCATION'),desc=get('DESCRIPTION'),urlF=get('^URL');
+    const unfolded=block.replace(/\r?\n[ \t]/g,'');
+    const get=k=>{ const m=unfolded.match(new RegExp(`(?:^|[\\r\\n])${k}[^:]*:([^\\r\\n]+)`)); return m?m[1].trim():''; };
+    const summary=get('SUMMARY'),dtstart=get('DTSTART'),dtend=get('DTEND'),location=get('LOCATION'),desc=get('DESCRIPTION'),urlF=get('URL');
     if(!summary||!dtstart) return;
-    const startDate=icsDate(dtstart); if(!startDate||startDate<now||startDate>soon) return;
+    const startDate=icsDate(dtstart); if(!startDate||startDate<todayStart||startDate>soon) return;
     const endDate=dtend?icsDate(dtend):null;
     const dl=dayLabel(startDate),isToday=dl==='Today';
     const joinUrl=urlF||extractURL(desc)||extractURL(location)||'';
-    out.push({id:uid(),title:summary,dayLabel:dl,isToday,time:fmtTime(startDate,dtstart),endTime:endDate?fmtTime(endDate,dtend):'',joinUrl,note:location||''});
+    const dateStr=localDateStr(startDate);
+    out.push({id:uid(),title:summary,dateStr,dayLabel:dl,isToday,time:fmtTime(startDate,dtstart),endTime:endDate?fmtTime(endDate,dtend):'',joinUrl,note:location||''});
   });
   return out;
 }
 function extractURL(s){ if(!s) return ''; const m=s.match(/https?:\/\/[^\s<>"\\]+/); return m?m[0]:''; }
-function icsDate(s){ const c=s.replace(/[TZ]/g,''); if(c.length<8) return null; return new Date(`${c.slice(0,4)}-${c.slice(4,6)}-${c.slice(6,8)}T${c.slice(8,10)||'00'}:${c.slice(10,12)||'00'}:00`); }
+function icsDate(s){ const isUTC=s.endsWith('Z'); const c=s.replace(/[TZ]/g,''); if(c.length<8) return null; return new Date(`${c.slice(0,4)}-${c.slice(4,6)}-${c.slice(6,8)}T${c.slice(8,10)||'00'}:${c.slice(10,12)||'00'}:00${isUTC?'Z':''}`); }
 function dayLabel(d){ const now=new Date(),today=new Date(now.getFullYear(),now.getMonth(),now.getDate()),day=new Date(d.getFullYear(),d.getMonth(),d.getDate()),diff=Math.round((day-today)/86400000); if(diff===0) return 'Today'; if(diff===1) return 'Tomorrow'; if(diff<7) return d.toLocaleDateString('en-US',{weekday:'long'}); return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
 function fmtTime(d,raw){ if(!raw||raw.length<=8) return 'All day'; return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}); }
-function isNowBetween(s,e){ if(!s) return false; try{ const parse=str=>{ const m=str.match(/(\d+):(\d+)\s*(AM|PM)?/i); if(!m) return null; let h=parseInt(m[1]),mn=parseInt(m[2]); const ap=(m[3]||'').toUpperCase(); if(ap==='PM'&&h!==12) h+=12; if(ap==='AM'&&h===12) h=0; return h*60+mn; }; const now=new Date(),nm=now.getHours()*60+now.getMinutes(),st=parse(s),en=e?parse(e):st+60; return st!==null&&nm>=st&&nm<=(en||st+60); }catch(e){ return false; } }
+function parseMinutes(str){ if(!str) return 0; const m=str.match(/(\d+):(\d+)\s*(AM|PM)?/i); if(!m) return 0; let h=parseInt(m[1]),mn=parseInt(m[2]); const ap=(m[3]||'').toUpperCase(); if(ap==='PM'&&h!==12) h+=12; if(ap==='AM'&&h===12) h=0; return h*60+mn; }
+function isNowBetween(s,e){ if(!s) return false; try{ const parse=str=>{ const m=str.match(/(\d+):(\d+)\s*(AM|PM)?/i); if(!m) return null; let h=parseInt(m[1]),mn=parseInt(m[2]); const ap=(m[3]||'').toUpperCase(); if(ap==='PM'&&h!==12) h+=12; if(ap==='AM'&&h===12) h=0; return h*60+mn; }; const now=new Date(),nm=now.getHours()*60+now.getMinutes(),st=parse(s),en=e?parse(e):st+60; return st!==null&&nm>=st&&nm<=(en||st+60); }catch(err){ return false; } }
 
 // Overlays
 function openOv(id){ document.getElementById(id).classList.add('open'); ri(); }
@@ -322,7 +337,7 @@ function saveProject(){
     if(fp) folders.push({id:uid(),name:fn||fp,path:fp});
   });
   if(editProj){ const p=DB.projects.find(p=>p.id===editProj); if(p){p.name=name;p.color=pickCol;p.workMode=workMode;p.joplin=joplin;p.folders=folders;} }
-  else{ const p=np(name,pickCol,workMode); p.joplin=joplin; p.folders=folders; DB.projects.push(p); active=p.id; }
+  else{ const p=np(name,pickCol,workMode); p.joplin=joplin; p.folders=folders; DB.projects.push(p); active=p.id; DB.settings.lastActive=p.id; }
   save(); closeOv('ov-proj'); render();
 }
 
@@ -340,7 +355,7 @@ function saveEvent(){
   const note=document.getElementById('ev-n').value.trim();
   const p=ga(); if(!p) return;
   const parts=timeStr.split(/[-–—]+/).map(s=>s.trim());
-  p.events.push({id:uid(),title,dayLabel:'Today',isToday:true,time:parts[0]||'',endTime:parts[1]||'',joinUrl,note});
+  p.events.push({id:uid(),title,dateStr:localDateStr(new Date()),dayLabel:'Today',isToday:true,time:parts[0]||'',endTime:parts[1]||'',joinUrl,note});
   save(); closeOv('ov-event'); render();
 }
 
@@ -351,4 +366,4 @@ function saveNote(){ const title=document.getElementById('n-title').value.trim()
 // Clock
 function tick(){ const now=new Date(); document.getElementById('clock').textContent=now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false}); document.getElementById('cdate').textContent=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}); }
 
-load(); render(); tick(); setInterval(tick,15000);
+load(); render(); tick(); setInterval(tick,1000);
