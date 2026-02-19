@@ -57,7 +57,7 @@ function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
 // escJS: escapes a value for use inside a single-quoted JS string within an HTML onclick attribute.
 // Must be combined with esc() — use esc(escJS(val)) — so both the JS context (\, ') and the HTML
 // attribute context (&, <, >, ") are correctly escaped.
-function escJS(s){ return String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+function escJS(s){ return String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\r/g,'\\r').replace(/\n/g,'\\n').replace(/\u2028/g,'\\u2028').replace(/\u2029/g,'\\u2029'); }
 function ri(){ if(window.lucide) lucide.createIcons(); }
 
 // Theme
@@ -153,8 +153,9 @@ function buildMeetingsCard(p, slot){
   const icsInp=document.createElement('input'); icsInp.type='file'; icsInp.id='ics-inp'; icsInp.accept='.ics'; icsInp.style.display='none'; icsInp.onchange=importICS; card.appendChild(icsInp);
 
   const todayStr=localDateStr(new Date());
-  const todayEvs=(p.events||[]).filter(e=>e.dateStr?e.dateStr===todayStr:(e.isToday||e.dayLabel==='Today')).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
-  const upcomingEvs=(p.events||[]).filter(e=>e.dateStr?e.dateStr>todayStr:(!e.isToday&&e.dayLabel&&e.dayLabel!=='Today')).sort((a,b)=>{ const da=a.dateStr||'zzz',db=b.dateStr||'zzz'; return da!==db?(da<db?-1:1):(a.time||'').localeCompare(b.time||''); });
+  const _wn=new Date(),_dts=(7-_wn.getDay())%7,endOfWeekStr=localDateStr(new Date(_wn.getFullYear(),_wn.getMonth(),_wn.getDate()+_dts));
+  const todayEvs=(p.events||[]).filter(e=>e.dateStr?e.dateStr===todayStr:(e.isToday||e.dayLabel==='Today')).sort((a,b)=>parseMinutes(a.time)-parseMinutes(b.time));
+  const upcomingEvs=(p.events||[]).filter(e=>e.dateStr?e.dateStr>=todayStr&&e.dateStr<=endOfWeekStr:(!e.isToday&&e.dayLabel&&e.dayLabel!=='Today')).sort((a,b)=>{ const da=a.dateStr||'zzz',db=b.dateStr||'zzz'; return da!==db?(da<db?-1:1):parseMinutes(a.time)-parseMinutes(b.time); });
 
   if(calView==='today'){
     if(!todayEvs.length){
@@ -282,9 +283,10 @@ function importICS(e){
   reader.readAsText(file);
 }
 function parseICS(text){
-  const out=[],now=new Date(),todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate()),soon=new Date(now.getTime()+60*24*60*60*1000);
+  const out=[],now=new Date(),todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate()),_d2s=(7-now.getDay())%7,soon=new Date(now.getFullYear(),now.getMonth(),now.getDate()+_d2s+1);
   text.split('BEGIN:VEVENT').slice(1).forEach(block=>{
-    const get=k=>{ const m=block.match(new RegExp(`(?:^|[\\r\\n])${k}[^:]*:([^\\r\\n]+)`)); return m?m[1].trim():''; };
+    const unfolded=block.replace(/\r?\n[ \t]/g,'');
+    const get=k=>{ const m=unfolded.match(new RegExp(`(?:^|[\\r\\n])${k}[^:]*:([^\\r\\n]+)`)); return m?m[1].trim():''; };
     const summary=get('SUMMARY'),dtstart=get('DTSTART'),dtend=get('DTEND'),location=get('LOCATION'),desc=get('DESCRIPTION'),urlF=get('URL');
     if(!summary||!dtstart) return;
     const startDate=icsDate(dtstart); if(!startDate||startDate<todayStart||startDate>soon) return;
@@ -300,6 +302,7 @@ function extractURL(s){ if(!s) return ''; const m=s.match(/https?:\/\/[^\s<>"\\]
 function icsDate(s){ const isUTC=s.endsWith('Z'); const c=s.replace(/[TZ]/g,''); if(c.length<8) return null; return new Date(`${c.slice(0,4)}-${c.slice(4,6)}-${c.slice(6,8)}T${c.slice(8,10)||'00'}:${c.slice(10,12)||'00'}:00${isUTC?'Z':''}`); }
 function dayLabel(d){ const now=new Date(),today=new Date(now.getFullYear(),now.getMonth(),now.getDate()),day=new Date(d.getFullYear(),d.getMonth(),d.getDate()),diff=Math.round((day-today)/86400000); if(diff===0) return 'Today'; if(diff===1) return 'Tomorrow'; if(diff<7) return d.toLocaleDateString('en-US',{weekday:'long'}); return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
 function fmtTime(d,raw){ if(!raw||raw.length<=8) return 'All day'; return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}); }
+function parseMinutes(str){ if(!str) return 0; const m=str.match(/(\d+):(\d+)\s*(AM|PM)?/i); if(!m) return 0; let h=parseInt(m[1]),mn=parseInt(m[2]); const ap=(m[3]||'').toUpperCase(); if(ap==='PM'&&h!==12) h+=12; if(ap==='AM'&&h===12) h=0; return h*60+mn; }
 function isNowBetween(s,e){ if(!s) return false; try{ const parse=str=>{ const m=str.match(/(\d+):(\d+)\s*(AM|PM)?/i); if(!m) return null; let h=parseInt(m[1]),mn=parseInt(m[2]); const ap=(m[3]||'').toUpperCase(); if(ap==='PM'&&h!==12) h+=12; if(ap==='AM'&&h===12) h=0; return h*60+mn; }; const now=new Date(),nm=now.getHours()*60+now.getMinutes(),st=parse(s),en=e?parse(e):st+60; return st!==null&&nm>=st&&nm<=(en||st+60); }catch(err){ return false; } }
 
 // Overlays
