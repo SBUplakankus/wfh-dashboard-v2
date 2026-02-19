@@ -249,7 +249,7 @@ function buildNotesCard(p, slot){
 function openURL(url){ if(!url) return; if(window.require){ try{ window.require('electron').shell.openExternal(url); return; }catch(e){} } window.open(url,'_blank'); }
 function openFolder(p){ if(!p) return; if(window.require){ try{ window.require('electron').shell.openPath(p); return; }catch(e){} } window.open('file://'+p,'_blank'); }
 function openApp(filePath){ if(!filePath) return; if(window.require){ try{ window.require('electron').shell.openPath(filePath); return; }catch(e){} } }
-function openKanri(){ const p=DB.settings.kanriPath; if(!p){ openOv('ov-settings'); return; } openApp(p); }
+function openKanri(){ const kanriPath=DB.settings.kanriPath; if(!kanriPath){ openOv('ov-settings'); return; } openApp(kanriPath); }
 function openJoplin(){ const p=ga(), nb=p?.joplin?`joplin://x-callback-url/openNote?notebook=${encodeURIComponent(p.joplin)}`:'joplin://'; openURL(nb); }
 function setCalView(v){ calView=v; render(); }
 function toggleTask(id){ const p=ga(); if(!p) return; const t=p.tasks.find(t=>t.id===id); if(t) t.done=!t.done; save(); render(); }
