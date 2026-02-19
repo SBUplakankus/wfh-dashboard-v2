@@ -17,14 +17,17 @@ const BAR   = ['#f0a843','#5a9ef5','#5acc8a','#a78bfa','#e05a5a','#22d3ee','#f47
 function meetingColor(title){ let h=0; for(let i=0;i<title.length;i++) h=(h*31+title.charCodeAt(i))>>>0; return BAR[h%BAR.length]; }
 const ICONS = ['globe','link','github','figma','code-2','terminal','folder','database','monitor','smartphone','mail','book','youtube','music','image','box','cloud','coffee','settings','send','layers','trello','slack','pen-tool'];
 
-let DB       = { projects:[], settings:{ accent:'#f0a843', font:'Syne', kanriPath:'', joplinPath:'' } };
+let DB       = { projects:[], settings:{ accent:'#f0a843', font:'Syne', kanriPath:'', joplinPath:'', lastActive:null } };
 let active   = null, editNote = null, editProj = null, pickCol = 'amber', pickIcon = 'globe', calView = 'today';
 
 function save(){ localStorage.setItem('hub5', JSON.stringify(DB)); }
 function load(){
   try { const d=localStorage.getItem('hub5'); if(d) DB=JSON.parse(d); else seed(); }
   catch(e){ seed(); }
-  if(DB.projects.length) active=DB.projects[0].id;
+  if(DB.projects.length){
+    const last=DB.settings.lastActive;
+    active=(last&&DB.projects.find(p=>p.id===last))?last:DB.projects[0].id;
+  }
   applyTheme();
 }
 function seed(){
@@ -90,7 +93,7 @@ function renderSidebar(){
       const action=e.target.closest('[data-action]')?.dataset?.action;
       if(action==='del'){ e.stopPropagation(); delProj(p.id); }
       else if(action==='edit'){ e.stopPropagation(); editProject(p.id); }
-      else { active=p.id; calView='today'; render(); }
+      else { active=p.id; DB.settings.lastActive=p.id; calView='today'; save(); render(); }
     });
     list.appendChild(el);
   });
@@ -260,14 +263,14 @@ function openKanri(){ const kanriPath=DB.settings.kanriPath; if(!kanriPath){ ope
 function openJoplin(){ const p=ga(), nb=p?.joplin?`joplin://x-callback-url/openNote?notebook=${encodeURIComponent(p.joplin)}`:'joplin://'; openURL(nb); }
 function setCalView(v){ calView=v; render(); }
 function toggleTask(id){ const p=ga(); if(!p) return; const t=p.tasks.find(t=>t.id===id); if(t) t.done=!t.done; save(); render(); }
-function addTask(){ const i=document.getElementById('tinp'),txt=i?.value.trim(); if(!txt) return; const p=ga(); if(!p) return; p.tasks.push({id:uid(),text:txt,done:false}); save(); render(); }
+function addTask(){ const i=document.getElementById('tinp'),txt=i?.value.trim(); if(!txt) return; const p=ga(); if(!p) return; p.tasks.push({id:uid(),text:txt,done:false}); save(); render(); setTimeout(()=>{ const ni=document.getElementById('tinp'); if(ni) ni.focus(); },0); }
 function delTask(id){ const p=ga(); if(!p) return; p.tasks=p.tasks.filter(t=>t.id!==id); save(); render(); }
 function delLink(id){ const p=ga(); if(!p) return; p.links=p.links.filter(l=>l.id!==id); save(); render(); }
 function delFolder(id){ const p=ga(); if(!p) return; p.folders=(p.folders||[]).filter(f=>f.id!==id); save(); render(); }
 function delEvent(id){ const p=ga(); if(!p) return; p.events=p.events.filter(e=>e.id!==id); save(); render(); }
 function delNote(id){ const p=ga(); if(!p) return; p.notes=p.notes.filter(n=>n.id!==id); save(); render(); }
 function editProject(id){ const p=DB.projects.find(p=>p.id===id); if(!p) return; editProj=id; document.getElementById('proj-name').value=p.name; document.getElementById('proj-joplin').value=p.joplin||''; document.getElementById('proj-work').checked=!!p.workMode; document.getElementById('proj-h').textContent='Edit Project'; document.getElementById('proj-folder-list').innerHTML=''; pickCol=p.color||'amber'; document.querySelectorAll('#proj-dots .cdot').forEach(d=>d.classList.toggle('sel',d.dataset.c===pickCol)); (p.folders||[]).forEach(f=>addFolderEntry(f.name,f.path)); openOv('ov-proj'); }
-function delProj(id){ if(!confirm('Delete this project?')) return; DB.projects=DB.projects.filter(p=>p.id!==id); if(active===id) active=DB.projects[0]?.id||null; save(); render(); }
+function delProj(id){ if(!confirm('Delete this project?')) return; DB.projects=DB.projects.filter(p=>p.id!==id); if(active===id){ active=DB.projects[0]?.id||null; DB.settings.lastActive=active; } save(); render(); }
 
 // ICS
 function triggerICS(){ document.getElementById('ics-inp')?.click(); }
@@ -331,7 +334,7 @@ function saveProject(){
     if(fp) folders.push({id:uid(),name:fn||fp,path:fp});
   });
   if(editProj){ const p=DB.projects.find(p=>p.id===editProj); if(p){p.name=name;p.color=pickCol;p.workMode=workMode;p.joplin=joplin;p.folders=folders;} }
-  else{ const p=np(name,pickCol,workMode); p.joplin=joplin; p.folders=folders; DB.projects.push(p); active=p.id; }
+  else{ const p=np(name,pickCol,workMode); p.joplin=joplin; p.folders=folders; DB.projects.push(p); active=p.id; DB.settings.lastActive=p.id; }
   save(); closeOv('ov-proj'); render();
 }
 
@@ -360,4 +363,4 @@ function saveNote(){ const title=document.getElementById('n-title').value.trim()
 // Clock
 function tick(){ const now=new Date(); document.getElementById('clock').textContent=now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false}); document.getElementById('cdate').textContent=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}); }
 
-load(); render(); tick(); setInterval(tick,15000);
+load(); render(); tick(); setInterval(tick,1000);
