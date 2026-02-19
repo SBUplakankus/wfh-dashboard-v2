@@ -5,9 +5,10 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder --win portable",
+    "build": "electron-builder --win --x64",
     "dist": "electron-builder --win --x64",
-    "test": "node --check main.js && echo Syntax OK"
+    "pack": "electron-builder --dir",
+    "test": "node --check main.js && node --check renderer/app.js && echo Syntax OK"
   },
   "devDependencies": {
     "electron": "^33.4.0",
@@ -16,21 +17,36 @@
   "build": {
     "appId": "com.workhub.dashboard",
     "productName": "WorkHub",
+    "icon": "assets/icon",
     "directories": {
       "output": "release"
     },
     "files": [
       "dashboard.html",
       "main.js",
-      "package.json"
+      "package.json",
+      "renderer/",
+      "assets/"
     ],
     "win": {
       "target": [
         {
+          "target": "nsis",
+          "arch": ["x64"]
+        },
+        {
           "target": "portable",
           "arch": ["x64"]
         }
-      ]
+      ],
+      "icon": "assets/icon.png"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "WorkHub"
     }
   }
 }
