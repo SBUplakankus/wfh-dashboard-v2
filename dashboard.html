@@ -147,8 +147,16 @@
     </div>
     <div class="s-section">
       <div class="s-title">App Paths</div>
-      <div class="field"><label class="lbl">Kanri .exe</label><input type="text" id="kanri-path" placeholder="C:\...\Kanri.exe" oninput="savePaths()"></div>
-      <div class="field" style="margin-bottom:0"><label class="lbl">Joplin .exe</label><input type="text" id="joplin-path" placeholder="C:\...\Joplin.exe" oninput="savePaths()"></div>
+      <div class="field"><label class="lbl">Kanri executable or folder</label><div style="display:flex;gap:4px;align-items:center"><input type="text" id="kanri-path" placeholder="C:\...\Kanri.exe (or install folder)" oninput="savePaths()"><button class="btn btn-s" onclick="detectKanriPath()">Detect</button></div></div>
+      <div class="field" style="margin-bottom:0"><label class="lbl">Joplin executable or folder</label><div style="display:flex;gap:4px;align-items:center"><input type="text" id="joplin-path" placeholder="C:\...\Joplin.exe (or install folder)" oninput="savePaths()"><button class="btn btn-s" onclick="detectJoplinPath()">Detect</button></div></div>
+    </div>
+    <div class="s-section">
+      <div class="s-title">Data</div>
+      <div class="field" style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-g" onclick="exportData()">Export JSON</button>
+        <button class="btn btn-g" onclick="triggerImportData()">Import JSON</button>
+        <input type="file" id="data-inp" accept=".json" style="display:none" onchange="importData(event)">
+      </div>
     </div>
     <div class="mrow"><button class="btn btn-p" onclick="closeOv('ov-settings')">Done</button></div>
   </div>

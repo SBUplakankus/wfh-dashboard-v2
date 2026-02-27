@@ -262,6 +262,7 @@ input[type="text"]:focus, textarea:focus, select:focus { border-color: var(--acc
 ::placeholder { color: var(--text3); }
 input[type="color"] { background: var(--bg3); border: 1px solid var(--border); border-radius: 5px; padding: 3px; height: 30px; width: 60px; cursor: pointer; }
 .btn { padding: 7px 14px; border-radius: 5px; border: none; cursor: pointer; font-family: var(--font); font-size: 13px; font-weight: 500; transition: opacity 0.15s; display: inline-flex; align-items: center; gap: 5px; }
+.btn-s { padding: 4px 8px; font-size: 12px; }
 .btn:hover { opacity: 0.85; }
 .btn-p { background: var(--accent); color: #0b0b0e; }
 .btn-g { background: var(--bg3); color: var(--text2); border: 1px solid var(--border); }

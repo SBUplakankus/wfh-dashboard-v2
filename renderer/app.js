@@ -18,6 +18,41 @@ function meetingColor(title){ let h=0; for(let i=0;i<title.length;i++) h=(h*31+t
 const ICONS = ['globe','link','github','figma','code-2','terminal','folder','database','monitor','smartphone','mail','book','youtube','music','image','box','cloud','coffee','settings','send','layers','trello','slack','pen-tool'];
 
 let DB       = { projects:[], settings:{ accent:'#f0a843', font:'Syne', kanriPath:'', joplinPath:'', lastActive:null } };
+
+// helpers for locating installed executables on Windows
+function detectKanri(){
+  if(!window.require) return '';
+  const fs = window.require('fs');
+  const os = window.require('os');
+  const path = window.require('path');
+  const homedir = os.homedir();
+  const candidates = [
+    path.join(homedir,'AppData','Local','Programs','Kanri','Kanri.exe'),
+    path.join(process.env.PROGRAMFILES||'','Kanri','Kanri.exe'),
+    path.join(process.env['PROGRAMFILES(X86)']||'','Kanri','Kanri.exe')
+  ];
+  for(const c of candidates){
+    try{ if(fs.existsSync(c)) return c; }catch(e){};
+  }
+  return '';
+}
+
+function detectJoplin(){
+  if(!window.require) return '';
+  const fs = window.require('fs');
+  const os = window.require('os');
+  const path = window.require('path');
+  const homedir = os.homedir();
+  const candidates = [
+    path.join(homedir,'AppData','Local','Programs','Joplin','Joplin.exe'),
+    path.join(process.env.PROGRAMFILES||'','Joplin','Joplin.exe'),
+    path.join(process.env['PROGRAMFILES(X86)']||'','Joplin','Joplin.exe')
+  ];
+  for(const c of candidates){
+    try{ if(fs.existsSync(c)) return c; }catch(e){};
+  }
+  return '';
+}
 let active   = null, editNote = null, editProj = null, pickCol = 'amber', pickIcon = 'globe', calView = 'today';
 
 function save(){ localStorage.setItem('hub5', JSON.stringify(DB)); }
@@ -77,7 +112,71 @@ function applyTheme(){
 }
 function setAccent(v){ DB.settings.accent=v; applyTheme(); save(); }
 function setFont(el){ DB.settings.font=el.dataset.f; applyTheme(); save(); }
-function savePaths(){ DB.settings.kanriPath=document.getElementById('kanri-path').value; DB.settings.joplinPath=document.getElementById('joplin-path').value; save(); }
+function savePaths(){
+  DB.settings.kanriPath=document.getElementById('kanri-path').value;
+  DB.settings.joplinPath=document.getElementById('joplin-path').value;
+  save();
+}
+
+function detectKanriPath(){
+  const found = detectKanri();
+  if(found){
+    document.getElementById('kanri-path').value = found;
+    savePaths();
+    alert('Detected Kanri at ' + found);
+  } else {
+    alert('Unable to auto-detect Kanri. Please enter the path manually.');
+  }
+}
+
+function detectJoplinPath(){
+  const found = detectJoplin();
+  if(found){
+    document.getElementById('joplin-path').value = found;
+    savePaths();
+    alert('Detected Joplin at ' + found);
+  } else {
+    alert('Unable to auto-detect Joplin. Please enter the path manually.');
+  }
+}
+
+// data export/import
+function exportData(){
+  try{
+    const dataStr=JSON.stringify(DB,null,2);
+    const blob=new Blob([dataStr],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download='workhub-data.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }catch(e){ alert('Failed to export data: '+e); }
+}
+function triggerImportData(){ document.getElementById('data-inp')?.click(); }
+function importData(e){
+  const file=e.target.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const obj=JSON.parse(ev.target.result);
+      if(obj && typeof obj==='object' && Array.isArray(obj.projects) && obj.settings){
+        if(confirm('This will replace your current data. Continue?')){
+          DB=obj;
+          save();
+          render();
+        }
+      } else {
+        throw new Error('Invalid data format');
+      }
+    }catch(err){ alert('Import failed: '+err.message); }
+    e.target.value='';
+  };
+  reader.onerror=()=>{ alert('Failed to read file'); e.target.value=''; };
+  reader.readAsText(file);
+}
 
 // Render
 function render(){ renderSidebar(); renderMain(); ri(); }
@@ -260,8 +359,70 @@ function buildNotesCard(p, slot){
 function openURL(url){ if(!url) return; if(window.require){ try{ window.require('electron').shell.openExternal(url); return; }catch(e){} } window.open(url,'_blank'); }
 function openFolder(p){ if(!p) return; if(window.require){ try{ window.require('electron').shell.openPath(p); return; }catch(e){} } window.open('file://'+p,'_blank'); }
 function openApp(filePath){ if(!filePath) return; if(window.require){ try{ window.require('electron').shell.openPath(filePath); return; }catch(e){} } }
-function openKanri(){ const kanriPath=DB.settings.kanriPath; if(!kanriPath){ openOv('ov-settings'); return; } openApp(kanriPath); }
-function openJoplin(){ const p=ga(), nb=p?.joplin?`joplin://x-callback-url/openNote?notebook=${encodeURIComponent(p.joplin)}`:'joplin://'; openURL(nb); }
+function openKanri(){
+  let kanriPath = DB.settings.kanriPath || '';
+  // try auto‑detect if nothing set
+  if(!kanriPath){
+    kanriPath = detectKanri();
+    if(kanriPath){
+      DB.settings.kanriPath = kanriPath;
+      save();
+    }
+  }
+  if(!kanriPath){
+    // still nothing – prompt user to configure
+    openOv('ov-settings');
+    return;
+  }
+
+  // if user accidentally entered a folder, try to resolve exec inside
+  if(window.require){
+    try{
+      const fs = window.require('fs');
+      const path = window.require('path');
+      if(fs.existsSync(kanriPath)){
+        const stat = fs.statSync(kanriPath);
+        if(stat.isDirectory()){
+          const exe = path.join(kanriPath,'Kanri.exe');
+          if(fs.existsSync(exe)) kanriPath = exe;
+        }
+      }
+    }catch(e){}
+  }
+  openApp(kanriPath);
+}
+function openJoplin(){
+  // prefer launching the actual executable if user provided one
+  let jPath = DB.settings.joplinPath || '';
+  if(!jPath){
+    jPath = detectJoplin();
+    if(jPath){
+      DB.settings.joplinPath = jPath;
+      save();
+    }
+  }
+
+  if(jPath){
+    // similar guard for directories
+    if(window.require){
+      try{
+        const fs = window.require('fs');
+        const path = window.require('path');
+        if(fs.existsSync(jPath) && fs.statSync(jPath).isDirectory()){
+          const exe = path.join(jPath,'Joplin.exe');
+          if(fs.existsSync(exe)) jPath = exe;
+        }
+      }catch(e){}
+    }
+    openApp(jPath);
+    return;
+  }
+
+  // fallback to URL scheme (old behaviour)
+  const p = ga();
+  const nb = p?.joplin ? `joplin://x-callback-url/openNote?notebook=${encodeURIComponent(p.joplin)}` : 'joplin://';
+  openURL(nb);
+}
 function setCalView(v){ calView=v; render(); }
 function toggleTask(id){ const p=ga(); if(!p) return; const t=p.tasks.find(t=>t.id===id); if(t) t.done=!t.done; save(); render(); }
 function addTask(){ const i=document.getElementById('tinp'),txt=i?.value.trim(); if(!txt) return; const p=ga(); if(!p) return; p.tasks.push({id:uid(),text:txt,done:false}); save(); render(); setTimeout(()=>{ const ni=document.getElementById('tinp'); if(ni) ni.focus(); },0); }

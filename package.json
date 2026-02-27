@@ -11,13 +11,13 @@
     "test": "node --check main.js && node --check renderer/app.js && echo Syntax OK"
   },
   "devDependencies": {
-    "electron": "^33.4.0",
-    "electron-builder": "^25.1.8"
+    "electron": "^40.6.0",
+    "electron-builder": "^26.8.1"
   },
   "build": {
     "appId": "com.workhub.dashboard",
     "productName": "WorkHub",
-    "icon": "assets/icon",
+    "icon": "assets/icon.ico",
     "directories": {
       "output": "release"
     },
@@ -32,14 +32,18 @@
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         },
         {
           "target": "portable",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ],
-      "icon": "assets/icon.png"
+      "icon": "assets/icon.ico"
     },
     "nsis": {
       "oneClick": true,
