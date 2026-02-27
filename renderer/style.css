@@ -13,7 +13,7 @@
 /* ── Base ── */
 html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; overflow: hidden; -webkit-font-smoothing: antialiased; }
 
-/* ── App shell: sidebar + main, both fill full height ── */
+/* ── App shell ── */
 .app { display: grid; grid-template-columns: 220px 1fr; height: 100vh; min-height: 0; }
 
 /* ── Sidebar ── */
@@ -55,67 +55,27 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 .cog:hover { color: var(--text2); background: var(--bg3); }
 .cog svg { width: 15px; height: 15px; stroke-width: 1.8; }
 
-/* ── Main: fills remaining height, no overflow on the wrapper ── */
-.main {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  overflow: hidden;
-  padding: 20px;
-  gap: 12px;
-}
-
-.page-head { display: flex; align-items: baseline; justify-content: space-between; flex-shrink: 0; }
+/* ── Main ── */
+.main { display: flex; flex-direction: column; min-height: 0; overflow: hidden; padding: 20px; gap: 12px; }
+.page-head { display: flex; align-items: flex-start; justify-content: space-between; flex-shrink: 0; }
 .page-title { font-size: 19px; font-weight: 700; letter-spacing: -0.03em; }
-.page-meta { font-size: 10px; font-family: var(--mono); color: var(--text3); }
+.page-meta { font-size: 10px; font-family: var(--mono); color: var(--text3); margin-top: 4px; }
+.page-tabs { margin-top: 6px; display: flex; gap: 4px; }
+.page-tabs .cbtn { font-size: 11px; padding: 4px 8px; }
 
-/* ── Content area: grows to fill all remaining space ── */
-#main-content {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+#main-content { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 12px; }
 
-/* ── Rows: each row shares available height equally ── */
-.card-row {
-  display: grid;
-  gap: 12px;
-  flex: 1;
-  min-height: 0;
-  grid-auto-rows: minmax(0, 1fr);
-}
+/* ── Card rows ── */
+.card-row { display: grid; gap: 12px; flex: 1; min-height: 0; grid-auto-rows: minmax(0, 1fr); }
 .card-row.cols-2 { grid-template-columns: 1fr 1fr; }
 .card-row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.card-row > div { min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
 
-/* Wrapper divs injected by JS inside cols-2/3 rows */
-.card-row > div {
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
+/* ── Card ── */
+.card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; animation: fadeUp 0.22s ease both; }
+.card:nth-child(1){animation-delay:.04s} .card:nth-child(2){animation-delay:.08s} .card:nth-child(3){animation-delay:.12s} .card:nth-child(4){animation-delay:.16s}
 
-/* ── Card: fills its grid cell, scrollable body ── */
-.card {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;           /* critical: lets flex children shrink */
-  overflow: hidden;
-  animation: fadeUp 0.22s ease both;
-}
-.card:nth-child(1){animation-delay:.04s}.card:nth-child(2){animation-delay:.08s}.card:nth-child(3){animation-delay:.12s}.card:nth-child(4){animation-delay:.16s}
-
-.card-head {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 11px 13px; border-bottom: 1px solid var(--border);
-  flex-shrink: 0; gap: 8px;
-}
+.card-head { display: flex; align-items: center; justify-content: space-between; padding: 11px 13px; border-bottom: 1px solid var(--border); flex-shrink: 0; gap: 8px; }
 .card-label { display: flex; align-items: center; gap: 6px; font-size: 10px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); flex-shrink: 0; }
 .card-label svg { width: 12px; height: 12px; stroke-width: 2; }
 .card-acts { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; justify-content: flex-end; }
@@ -126,33 +86,11 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 .cbtn.tab-on { color: var(--accent); border-color: var(--accent); background: var(--accent-glow); }
 .cbtn svg { width: 10px; height: 10px; stroke-width: 2.2; }
 
-/* ── Card body: grows, scrolls, no fixed heights ── */
-.card-body {
-  flex: 1;
-  min-height: 0;
-  height: 0;
-  overflow-y: auto;
-  padding: 10px 11px;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Footer rows inside cards (task input, hints) stay at bottom */
-.card-footer {
-  flex-shrink: 0;
-  padding: 8px 11px;
-  border-top: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+.card-body { flex: 1; min-height: 0; height: 0; overflow-y: auto; padding: 10px 11px; display: flex; flex-direction: column; }
+.card-footer { flex-shrink: 0; padding: 8px 11px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
 
 /* ── Meetings ── */
-.meeting-row {
-  display: flex; align-items: center; gap: 10px;
-  padding: 9px 10px; border-radius: 6px; border: 1px solid var(--border);
-  margin-bottom: 6px; transition: border-color 0.15s, background 0.15s; flex-shrink: 0;
-}
+.meeting-row { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 6px; border: 1px solid var(--border); margin-bottom: 6px; transition: border-color 0.15s, background 0.15s; flex-shrink: 0; }
 .meeting-row:last-child { margin-bottom: 0; }
 .meeting-row.now { border-color: rgba(90,158,245,0.3); background: rgba(90,158,245,0.04); }
 .meeting-time-block { flex-shrink: 0; text-align: right; min-width: 54px; }
@@ -171,7 +109,7 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 .meeting-row:hover .meeting-del { opacity: 1; }
 .meeting-del:hover { color: var(--red) !important; }
 
-/* Upcoming list */
+/* Upcoming */
 .ev-day { font-size: 10px; font-family: var(--mono); color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; padding: 6px 3px 3px; flex-shrink: 0; }
 .ev-day:first-child { padding-top: 0; }
 .ev-row { display: flex; gap: 9px; align-items: flex-start; padding: 6px 3px; border-radius: 5px; transition: background 0.12s; flex-shrink: 0; }
@@ -204,7 +142,7 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 .add-tile:hover { border-color: var(--text3); color: var(--text2); }
 .add-tile svg { width: 14px; height: 14px; stroke-width: 1.8; }
 
-/* ── File Directories section inside Links card ── */
+/* File Directories (inside Links card) */
 .folders-section { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border); flex-shrink: 0; }
 .folders-section-label { font-size: 10px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
 .folders-section-label svg { width: 11px; height: 11px; stroke-width: 2; }
@@ -236,8 +174,6 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 .task-row:hover .tdel { opacity: 1; }
 .tdel:hover { color: var(--red) !important; }
 .task-input-row { display: flex; gap: 7px; }
-.tool-hint-row { display: flex; align-items: center; justify-content: space-between; }
-.hint-text { font-size: 10px; font-family: var(--mono); color: var(--text3); }
 
 /* ── Notes ── */
 .note-row { display: flex; align-items: flex-start; gap: 9px; padding: 8px 7px; border-radius: 6px; border: 1px solid transparent; cursor: pointer; flex-shrink: 0; transition: border-color 0.15s, background 0.15s; }
@@ -253,8 +189,35 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 .note-row:hover .ndel { opacity: 1; }
 .ndel:hover { color: var(--red) !important; }
 
+/* ── Docs card ── */
+.doc-folder-list { display: flex; flex-direction: column; gap: 4px; }
+.doc-folder-row { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border); cursor: pointer; transition: border-color 0.15s, background 0.15s; flex-shrink: 0; }
+.doc-folder-row:hover { border-color: var(--border-h); background: var(--bg3); }
+.doc-folder-ico { color: var(--accent); opacity: 0.75; display: flex; flex-shrink: 0; }
+.doc-folder-ico svg { width: 15px; height: 15px; stroke-width: 1.7; }
+.doc-folder-info { flex: 1; min-width: 0; }
+.doc-folder-name { font-size: 12px; font-weight: 500; color: var(--text); display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.doc-folder-path { font-size: 10px; font-family: var(--mono); color: var(--text3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+.doc-folder-count { font-size: 9px; font-family: var(--mono); padding: 1px 5px; border-radius: 3px; background: var(--bg4); color: var(--text3); border: 1px solid var(--border); flex-shrink: 0; }
+.doc-folder-actions { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+.doc-fdel { opacity: 0; cursor: pointer; color: var(--text3); display: flex; flex-shrink: 0; padding: 2px; transition: opacity 0.15s, color 0.15s; }
+.doc-fdel svg { width: 12px; height: 12px; stroke-width: 2; }
+.doc-folder-row:hover .doc-fdel { opacity: 1; }
+.doc-fdel:hover { color: var(--red) !important; }
+
+/* ── Kanri preview ── */
+.kanri-preview { display: flex; gap: 24px; overflow-x: auto; padding-bottom: 12px; }
+.kanri-board { min-width: 280px; display: flex; flex-direction: column; }
+.kanri-board-title { font-weight: 600; margin-bottom: 6px; }
+.kanri-col-wrapper { display: flex; gap: 12px; }
+.kanri-col { background: var(--bg3); border-radius: 6px; padding: 8px; width: 220px; display: flex; flex-direction: column; max-height: 400px; overflow-y: auto; }
+.kanri-col-header { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+.kanri-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 5px; padding: 6px 8px; margin-bottom: 4px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+.kanri-card.done { opacity: 0.6; text-decoration: line-through; }
+.kanri-card .tag { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+
 /* ── Empty state ── */
-.empty { text-align: center; color: var(--text3); font-size: 11px; font-family: var(--mono); padding: 24px 0; line-height: 1.7; flex: 1; display: flex; align-items: center; justify-content: center; }
+.empty { text-align: center; color: var(--text3); font-size: 11px; font-family: var(--mono); padding: 24px 0; line-height: 1.7; flex: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; }
 
 /* ── Inputs ── */
 input[type="text"], textarea, select { background: var(--bg3); border: 1px solid var(--border); border-radius: 5px; color: var(--text); font-family: var(--font); font-size: 13px; padding: 7px 10px; outline: none; transition: border-color 0.15s; width: 100%; }
@@ -281,7 +244,7 @@ input[type="color"] { background: var(--bg3); border: 1px solid var(--border); b
 /* ── Overlay / Modal ── */
 .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.18s; }
 .overlay.open { opacity: 1; pointer-events: all; }
-.modal { background: var(--bg2); border: 1px solid var(--border-h); border-radius: 10px; padding: 22px; transform: translateY(8px); transition: transform 0.18s; }
+.modal { background: var(--bg2); border: 1px solid var(--border-h); border-radius: 10px; padding: 22px; transform: translateY(8px); transition: transform 0.18s; max-height: 90vh; overflow-y: auto; }
 .overlay.open .modal { transform: translateY(0); }
 .m-sm { width: 390px; max-width: 92vw; }
 .m-md { width: 460px; max-width: 92vw; }
@@ -309,7 +272,6 @@ input[type="color"] { background: var(--bg3); border: 1px solid var(--border); b
 .icon-opt:hover { border-color: var(--border-h); background: var(--bg4); color: var(--text); }
 .icon-opt.sel { border-color: var(--accent); background: var(--accent-dim); color: var(--accent); }
 
-/* Color picker dots — wrap to handle extended palette */
 .cdots { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 5px; }
 .cdot { width: 20px; height: 20px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: border-color 0.15s, transform 0.15s; }
 .cdot:hover { transform: scale(1.15); }

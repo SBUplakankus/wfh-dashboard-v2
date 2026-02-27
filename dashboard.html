@@ -21,6 +21,7 @@
       <span class="sb-label">Tools</span>
       <div class="nav-item" onclick="openKanri()"><i data-lucide="kanban"></i> Kanri</div>
       <div class="nav-item" onclick="openJoplin()"><i data-lucide="notebook"></i> Joplin</div>
+      <div class="nav-item" onclick="openMarkText()"><i data-lucide="pen-line"></i> MarkText</div>
     </div>
     <div class="sb-foot">
       <div><div class="clock" id="clock">00:00</div><div class="clock-date" id="cdate"></div></div>
@@ -30,7 +31,10 @@
 
   <main class="main">
     <div class="page-head">
-      <div class="page-title" id="ptitle">Select a project</div>
+      <div>
+        <div class="page-title" id="ptitle">Select a project</div>
+        <div id="page-tabs" class="page-tabs"></div>
+      </div>
       <div class="page-meta" id="pmeta"></div>
     </div>
     <div id="main-content"></div>
@@ -69,11 +73,23 @@
         <label class="toggle"><input type="checkbox" id="proj-work"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
       </div>
     </div>
-    <div class="field"><label class="lbl">Joplin notebook (optional)</label><input type="text" id="proj-joplin" placeholder="Notebook name"></div>
     <div class="field">
-      <label class="lbl">Folders</label>
+      <label class="lbl">Joplin notebook (optional)</label>
+      <input type="text" id="proj-joplin" placeholder="Notebook name">
+    </div>
+    <div class="field">
+      <label class="lbl">Kanri board (optional)</label>
+      <select id="proj-kanri"></select>
+    </div>
+    <div class="field">
+      <label class="lbl">File Directories</label>
       <div class="folder-list" id="proj-folder-list"></div>
       <div class="add-folder-btn" onclick="addFolderEntry()"><i data-lucide="plus"></i> Add folder</div>
+    </div>
+    <div class="field">
+      <label class="lbl">Doc Folders <span style="font-size:9px;color:var(--text3);font-family:var(--mono);font-weight:400;text-transform:none;letter-spacing:0">— opened with MarkText</span></label>
+      <div class="folder-list" id="proj-docfolder-list"></div>
+      <div class="add-folder-btn" onclick="addDocFolderEntry()"><i data-lucide="plus"></i> Add doc folder</div>
     </div>
     <div class="mrow">
       <button class="btn btn-g" onclick="closeOv('ov-proj')">Cancel</button>
@@ -123,6 +139,19 @@
   </div>
 </div>
 
+<!-- Doc Folder quick-add modal -->
+<div class="overlay" id="ov-docfolder">
+  <div class="modal m-sm">
+    <h2>Add Doc Folder</h2>
+    <div class="field"><label class="lbl">Name</label><input type="text" id="df-name" placeholder="Notes Vault"></div>
+    <div class="field"><label class="lbl">Path</label><input type="text" id="df-path" placeholder="C:\Users\…\Documents\Notes"></div>
+    <div class="mrow">
+      <button class="btn btn-g" onclick="closeOv('ov-docfolder')">Cancel</button>
+      <button class="btn btn-p" onclick="saveDocFolder()">Add</button>
+    </div>
+  </div>
+</div>
+
 <!-- Settings -->
 <div class="overlay" id="ov-settings">
   <div class="modal m-md">
@@ -137,22 +166,41 @@
     </div>
     <div class="s-section">
       <div class="s-title">Font</div>
-      <div class="font-opts" id="font-opts">
-        <div class="font-opt sel" data-f="Syne" style="font-family:'Syne'" onclick="setFont(this)">Syne — geometric</div>
-        <div class="font-opt" data-f="Outfit" style="font-family:'Outfit'" onclick="setFont(this)">Outfit — friendly</div>
-        <div class="font-opt" data-f="DM Sans" style="font-family:'DM Sans'" onclick="setFont(this)">DM Sans — clean</div>
-        <div class="font-opt" data-f="Plus Jakarta Sans" style="font-family:'Plus Jakarta Sans'" onclick="setFont(this)">Plus Jakarta Sans — sharp</div>
-        <div class="font-opt" data-f="IBM Plex Sans" style="font-family:'IBM Plex Sans'" onclick="setFont(this)">IBM Plex Sans — technical</div>
+      <div class="font-opts">
+        <div class="font-opt sel" data-f="Syne"             style="font-family:'Syne'"             onclick="setFont(this)">Syne — geometric</div>
+        <div class="font-opt"     data-f="Outfit"           style="font-family:'Outfit'"           onclick="setFont(this)">Outfit — friendly</div>
+        <div class="font-opt"     data-f="DM Sans"          style="font-family:'DM Sans'"          onclick="setFont(this)">DM Sans — clean</div>
+        <div class="font-opt"     data-f="Plus Jakarta Sans" style="font-family:'Plus Jakarta Sans'" onclick="setFont(this)">Plus Jakarta Sans — sharp</div>
+        <div class="font-opt"     data-f="IBM Plex Sans"    style="font-family:'IBM Plex Sans'"    onclick="setFont(this)">IBM Plex Sans — technical</div>
       </div>
     </div>
     <div class="s-section">
       <div class="s-title">App Paths</div>
-      <div class="field"><label class="lbl">Kanri executable or folder</label><div style="display:flex;gap:4px;align-items:center"><input type="text" id="kanri-path" placeholder="C:\...\Kanri.exe (or install folder)" oninput="savePaths()"><button class="btn btn-s" onclick="detectKanriPath()">Detect</button></div></div>
-      <div class="field" style="margin-bottom:0"><label class="lbl">Joplin executable or folder</label><div style="display:flex;gap:4px;align-items:center"><input type="text" id="joplin-path" placeholder="C:\...\Joplin.exe (or install folder)" oninput="savePaths()"><button class="btn btn-s" onclick="detectJoplinPath()">Detect</button></div></div>
+      <div class="field">
+        <label class="lbl">Kanri executable or folder</label>
+        <div style="display:flex;gap:4px;align-items:center">
+          <input type="text" id="kanri-path" placeholder="C:\...\Kanri.exe" oninput="savePaths()">
+          <button class="btn btn-s btn-g" onclick="detectKanriPath()">Detect</button>
+        </div>
+      </div>
+      <div class="field">
+        <label class="lbl">Joplin executable or folder</label>
+        <div style="display:flex;gap:4px;align-items:center">
+          <input type="text" id="joplin-path" placeholder="C:\...\Joplin.exe" oninput="savePaths()">
+          <button class="btn btn-s btn-g" onclick="detectJoplinPath()">Detect</button>
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label class="lbl">MarkText executable or folder</label>
+        <div style="display:flex;gap:4px;align-items:center">
+          <input type="text" id="marktext-path" placeholder="C:\...\marktext.exe" oninput="savePaths()">
+          <button class="btn btn-s btn-g" onclick="detectMarkTextPath()">Detect</button>
+        </div>
+      </div>
     </div>
     <div class="s-section">
       <div class="s-title">Data</div>
-      <div class="field" style="display:flex;gap:8px;flex-wrap:wrap">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-g" onclick="exportData()">Export JSON</button>
         <button class="btn btn-g" onclick="triggerImportData()">Import JSON</button>
         <input type="file" id="data-inp" accept=".json" style="display:none" onchange="importData(event)">
